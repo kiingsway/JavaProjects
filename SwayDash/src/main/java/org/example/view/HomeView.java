@@ -2,7 +2,6 @@ package org.example.view;
 
 import org.example.Constants;
 import org.example.view.components.*;
-import org.example.model.SystemInfo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,11 +32,12 @@ public class HomeView extends JFrame {
 
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     GraphicsDevice[] screens = ge.getScreenDevices();
+    monitorIndex = monitorIndex >= screens.length ? screens.length - 1 : monitorIndex;
     Rectangle screenBounds = screens[monitorIndex].getDefaultConfiguration().getBounds();
     setBounds(screenBounds);
 
     renderMenu();
-    //renderWeather();
+    renderWeather();
     renderClock();
     renderSystemInfo();
     setTheme();
@@ -58,7 +58,7 @@ public class HomeView extends JFrame {
   }
 
   private void renderWeather() {
-    weatherPanel.setBounds(50, 250, 200,200);
+    weatherPanel.setBounds(50, 250, 200, 200);
     add(weatherPanel);
   }
 
@@ -109,21 +109,16 @@ public class HomeView extends JFrame {
     Color background = isDarkMode ? Color.BLACK : Color.WHITE;
 
     getContentPane().setBackground(background);
-    btnMenu.setBackground(background);
-    btnClose.setBackground(background);
-    btnChangeMonitor.setBackground(background);
-    btnTheme.setBackground(background);
 
-    lblClock.setForeground(foreground);
-    lblDate.setForeground(foreground);
-    btnMenu.setForeground(foreground);
-    btnClose.setForeground(foreground);
-    btnChangeMonitor.setForeground(foreground);
-    btnTheme.setForeground(foreground);
-    lblBattery.setForeground(foreground);
-    lblHD.setForeground(foreground);
-    lblRAM.setForeground(foreground);
+    // Lista de componentes a serem atualizados
+    Component[] backgroundComponents = {btnMenu, btnClose, btnChangeMonitor, btnTheme, getContentPane()};
+    Component[] foregroundComponents = {btnMenu, btnClose, btnChangeMonitor, btnTheme, lblClock, lblDate, lblBattery, lblHD, lblRAM};
 
+    // Atualiza o fundo (background) e a cor do texto (foreground) do componente
+    for (Component comp : backgroundComponents) comp.setBackground(background);
+    for (Component comp : foregroundComponents) comp.setForeground(foreground);
+
+    // Atualiza o modo do painel do tempo
     weatherPanel.setDarkMode(isDarkMode);
 
     revalidate();

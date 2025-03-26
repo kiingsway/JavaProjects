@@ -11,6 +11,7 @@ public class Constants {
   private static final String RAJDHANI_REGULAR_FILE = FONTS_PATH + "Regular.ttf";
 
   public static final Font FONT_CLOCK = loadFont(RAJDHANI_BOLD_FILE, 80f);
+  public static final Font FONT_WEATHER = new Font("Segoe UI Emoji", Font.BOLD, 80);
   public static final Font FONT_DATE = loadFont(RAJDHANI_REGULAR_FILE, 30f);
   public static final Font FONT_ACTION = new Font("Segoe UI Emoji", Font.BOLD, 30);
   public static final Font FONT_ACTION_SM = new Font("Segoe UI Emoji", Font.BOLD, 20);

@@ -11,7 +11,7 @@ public class WeatherPanel extends JPanel {
 
   public WeatherPanel(boolean isThemeDark) {
     txtTemperature.setForeground(isThemeDark ? Color.LIGHT_GRAY : Color.DARK_GRAY);
-    txtTemperature.setFont(Constants.FONT_CLOCK);
+    txtTemperature.setFont(Constants.FONT_WEATHER);
     txtTemperature.setHorizontalAlignment(SwingConstants.LEFT);
     add(txtTemperature, BorderLayout.WEST);
   }
