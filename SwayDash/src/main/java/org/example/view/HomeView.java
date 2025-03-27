@@ -16,18 +16,19 @@ public class HomeView extends JFrame {
   private final JButton btnClose = new JButton("❌");
   private final JButton btnTheme = new JButton("🎨");
 
-  private final DateLabel lblDate = new DateLabel();
-  private final ClockLabel lblClock = new ClockLabel();
   private final BatteryLabel lblBattery = new BatteryLabel();
   private final HDLabel lblHD = new HDLabel();
   private final RAMLabel lblRAM = new RAMLabel();
 
-  private final WeatherPanel weatherPanel = new WeatherPanel(isDarkMode);
+  private final JPanel weatherPanel = new JPanel();
+  //private final WeatherPanel weatherPanel = new WeatherPanel(isDarkMode);
+  private final ClockPanel clockPanel = new ClockPanel(isDarkMode);
+  private final SystemInfoPanel sysInfoPanel = new SystemInfoPanel(isDarkMode);
 
   public HomeView(int monitorIndex) throws IOException {
     setUndecorated(true);
     getContentPane().setBackground(Color.BLACK);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(EXIT_ON_CLOSE);
     setLayout(null);
     setResizable(false);
 
@@ -38,29 +39,32 @@ public class HomeView extends JFrame {
     setBounds(screenBounds);
 
     renderMenu();
-    renderWeather();
     renderClock();
+//    renderWeather();
     renderSystemInfo();
     setTheme();
   }
 
   private void renderClock() {
-    lblClock.setFont(Constants.FONT_CLOCK);
-    Dimension size = lblClock.getPreferredSize();
-    lblClock.setBounds(50, 50, size.width, size.height);
-    add(lblClock);
-
-    int clockHeight = size.height;
-
-    lblDate.setFont(Constants.FONT_DATE);
-    size = lblDate.getPreferredSize();
-    lblDate.setBounds(50, clockHeight + 30, size.width, size.height);
-    add(lblDate);
+    clockPanel.setBounds(50, 50, 350, 150);
+    clockPanel.setBackground(Color.WHITE);
+    add(clockPanel);
   }
 
   private void renderWeather() {
-    weatherPanel.setBounds(50, 250, 300, 200);
+    int w = weatherPanel.getPreferredSize().width;
+    int h = weatherPanel.getPreferredSize().height;
+    weatherPanel.setBounds(50, 250, w, h);
     add(weatherPanel);
+  }
+
+  private void renderSystemInfo() {
+    int x = getWidth() - 100 - 80;
+    int y = getHeight() - 50 - (40 * 3);
+    int w = sysInfoPanel.getPreferredSize().width;
+    int h = sysInfoPanel.getPreferredSize().height;
+    sysInfoPanel.setBounds(x, y, w, h);
+    add(sysInfoPanel);
   }
 
   private void renderMenu() {
@@ -86,7 +90,7 @@ public class HomeView extends JFrame {
     }
   }
 
-  private void renderSystemInfo() {
+  private void renderSystemInf1o() {
     int x = getWidth() - 100 - 80;
     int y = getHeight() - 50 - (40 * 3);
 
@@ -113,14 +117,16 @@ public class HomeView extends JFrame {
 
     // Lista de componentes a serem atualizados
     Component[] backgroundComponents = {btnMenu, btnClose, btnChangeMonitor, btnTheme, getContentPane()};
-    Component[] foregroundComponents = {btnMenu, btnClose, btnChangeMonitor, btnTheme, lblClock, lblDate, lblBattery, lblHD, lblRAM};
+    Component[] foregroundComponents = {btnMenu, btnClose, btnChangeMonitor, btnTheme, lblBattery, lblHD, lblRAM};
 
     // Atualiza o fundo (background) e a cor do texto (foreground) do componente
     for (Component comp : backgroundComponents) comp.setBackground(background);
     for (Component comp : foregroundComponents) comp.setForeground(foreground);
 
     // Atualiza o modo do painel do tempo
-    weatherPanel.setDarkMode(isDarkMode);
+    //weatherPanel.setDarkMode(isDarkMode);
+    clockPanel.setTheme(isDarkMode);
+
 
     revalidate();
     repaint();
