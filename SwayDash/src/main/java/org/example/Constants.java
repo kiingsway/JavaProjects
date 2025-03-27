@@ -1,5 +1,6 @@
 package org.example;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -26,5 +27,17 @@ public class Constants {
       System.out.println("Erro ao carregar a fonte '" + path + "': " + e.getMessage());
       return new Font("Arial", Font.PLAIN, (int) size); // Fallback para Arial
     }
+  }
+
+  public static Integer STRING_TO_INTEGER(String string) {
+    if (string.isEmpty()) return null;
+    String numberText = string.replaceAll("[^0-9]", "");
+    if (numberText.isEmpty()) return null;
+    return Integer.parseInt(string.replaceAll("[^0-9-]", ""));
+  }
+
+  public static void SHOW_ERROR_DIALOG(Component view, Exception e) {
+    String errorType = e.getClass().getSimpleName();
+    JOptionPane.showMessageDialog(view, e.getMessage(), "ERROR - " + errorType, JOptionPane.ERROR_MESSAGE);
   }
 }

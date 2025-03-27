@@ -7,10 +7,11 @@ import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
 
 public class SystemInfo {
-  private static final oshi.SystemInfo systemInfo = new oshi.SystemInfo();
-  private static final HardwareAbstractionLayer hal = systemInfo.getHardware();
 
-  public static String getBatteryRemainingTime() {
+  private final oshi.SystemInfo systemInfo = new oshi.SystemInfo();
+  private final HardwareAbstractionLayer hal = systemInfo.getHardware();
+
+  public String getBatteryRemainingTime() {
     PowerSource battery = hal.getPowerSources().getFirst();
     long seconds = (long) battery.getTimeRemainingInstant();
     long minutes = seconds / 60;

@@ -5,6 +5,7 @@ import org.example.view.HomeView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,9 +30,13 @@ public class ChangeMonitorButton extends JButton {
       SwingUtilities.invokeLater(() -> {
         int monitorIndex = getActualMonitor() + 1;
         if (monitorIndex >= monitorListSize) monitorIndex = 0;
-        HomeView frame = new HomeView(monitorIndex);
-        new HomeController(frame);
-        frame.setVisible(true);
+        try {
+          HomeView frame = new HomeView(monitorIndex);
+          new HomeController(frame);
+          frame.setVisible(true);
+        } catch (IOException e) {
+          JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
       });
     });
   }

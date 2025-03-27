@@ -5,6 +5,7 @@ import org.example.view.components.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class HomeView extends JFrame {
 
@@ -21,9 +22,9 @@ public class HomeView extends JFrame {
   private final HDLabel lblHD = new HDLabel();
   private final RAMLabel lblRAM = new RAMLabel();
 
-  WeatherPanel weatherPanel = new WeatherPanel(isDarkMode);
+  private final WeatherPanel weatherPanel = new WeatherPanel(isDarkMode);
 
-  public HomeView(int monitorIndex) {
+  public HomeView(int monitorIndex) throws IOException {
     setUndecorated(true);
     getContentPane().setBackground(Color.BLACK);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,7 +59,7 @@ public class HomeView extends JFrame {
   }
 
   private void renderWeather() {
-    weatherPanel.setBounds(50, 250, 200, 200);
+    weatherPanel.setBounds(50, 250, 300, 200);
     add(weatherPanel);
   }
 
