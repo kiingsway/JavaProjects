@@ -1,6 +1,6 @@
 package org.example.view.components;
 
-import org.example.model.SystemInfo;
+import org.example.model.systemInfo.SystemInfo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,8 +11,8 @@ public class SystemInfoPanel extends JPanel {
   private final SystemInfo sys = new SystemInfo();
 
   private static final IconLabelPanel lblBattery = new IconLabelPanel();
-  private static final JLabel lblHD = new JLabel();
-  private static final JLabel lblRAM = new JLabel();
+  private static final IconLabelPanel lblHD = new IconLabelPanel();
+  private static final IconLabelPanel lblRAM = new IconLabelPanel();
 
   public SystemInfoPanel(boolean isDarkMode) {
     this.isDarkMode = isDarkMode;
@@ -20,9 +20,17 @@ public class SystemInfoPanel extends JPanel {
 
     setLayout(null);
 
-    lblBattery.setBounds(10, 10, 100, 20);
+    int height = 35;
+    int row = 0;
+    lblBattery.setBounds(0, 0, 250, height);
+    row++;
+    lblHD.setBounds(0, row * height, 250, height);
+    row++;
+    lblRAM.setBounds(0, row * height, 250, height);
 
     add(lblBattery);
+    add(lblHD);
+    add(lblRAM);
 
     updateValues();
     Timer timer = new Timer(1000, _ -> updateValues());
@@ -30,8 +38,18 @@ public class SystemInfoPanel extends JPanel {
   }
 
   private void updateValues() {
-    lblBattery.setText(sys.getBatteryPercentage(true));
+    String iconBattery = sys.isBatteryCharging() ? "\uD83D\uDD0C" : "🔋";
+    String textBattery = sys.getBatteryPercentage();
+    String text2Battery = sys.getBatteryRemainingTime();
+    lblBattery.setTexts(iconBattery, textBattery, text2Battery);
 
+    String percentageFreeHD = sys.getHDInfo("C").percentageFree();
+    String freeGBHD = sys.getHDInfo("C").freeGB();
+    lblHD.setTexts("🖥️", percentageFreeHD, freeGBHD);
+
+    String percentageFreeRAM = sys.getRAMInfo().percentageFree();
+    String freeGBRAM = sys.getRAMInfo().freeGB();
+    lblRAM.setTexts("🪮", percentageFreeRAM, freeGBRAM);
   }
 
   public void setTheme(boolean isDarkMode) {

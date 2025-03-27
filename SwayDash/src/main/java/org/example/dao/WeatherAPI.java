@@ -38,7 +38,8 @@ public class WeatherAPI {
   private String city;
   private String status;
   private Integer temp;
-  private HighLowWeatherModel highLow;
+  private HighLowWeatherModel highLow = new HighLowWeatherModel(null, null);
+  //private HighLowWeatherModel highLow ;
   private Integer feelsLike;
   private HourlyForecastModel hourlyForecast;
   private SunsetSunriseModel sunsetSunrise;
@@ -56,7 +57,7 @@ public class WeatherAPI {
     new Thread(() -> {
       try {
         useJsoup();
-        useSelenium();
+        //useSelenium();
       } catch (Exception e) {
         e.printStackTrace();
         SHOW_ERROR_DIALOG(null, e);
@@ -183,4 +184,15 @@ public class WeatherAPI {
   public HourlyForecastModel hourlyForecast() {return hourlyForecast;}
 
   public SunsetSunriseModel sunsetSunrise() {return sunsetSunrise;}
+
+  @Override
+  public String toString() {
+    return String.format("""
+                                 ------%s------
+                                 Status: %s
+                                 Temp: %s
+                                 High: %s
+                                 Low: %s
+                                 """, city, status, temp, highLow.high(), highLow.low());
+  }
 }

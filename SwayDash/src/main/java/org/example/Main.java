@@ -7,17 +7,13 @@ import javax.swing.*;
 import java.io.IOException;
 
 public class Main {
-  public static final int DEFAULT_MONITOR_INDEX = 0; // 0 = Main, 1 = Other display
+  public static final int DEFAULT_MONITOR_INDEX = 1; // 0 = Main, 1 = Other display
 
   public static void main(String[] args) {
     SwingUtilities.invokeLater(() -> {
-      try {
-        HomeView frame = new HomeView(DEFAULT_MONITOR_INDEX);
-        new HomeController(frame);
-        frame.setVisible(true);
-      } catch (IOException e) {
-        JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-      }
+      HomeView frame = new HomeView(DEFAULT_MONITOR_INDEX);
+      new HomeController(frame);
+      frame.setVisible(true);
     });
   }
 }

@@ -5,7 +5,6 @@ import org.example.view.components.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 
 public class HomeView extends JFrame {
 
@@ -16,16 +15,11 @@ public class HomeView extends JFrame {
   private final JButton btnClose = new JButton("❌");
   private final JButton btnTheme = new JButton("🎨");
 
-  private final BatteryLabel lblBattery = new BatteryLabel();
-  private final HDLabel lblHD = new HDLabel();
-  private final RAMLabel lblRAM = new RAMLabel();
-
-  private final JPanel weatherPanel = new JPanel();
-  //private final WeatherPanel weatherPanel = new WeatherPanel(isDarkMode);
+  private final WeatherPanel weatherPanel = new WeatherPanel(isDarkMode);
   private final ClockPanel clockPanel = new ClockPanel(isDarkMode);
   private final SystemInfoPanel sysInfoPanel = new SystemInfoPanel(isDarkMode);
 
-  public HomeView(int monitorIndex) throws IOException {
+  public HomeView(int monitorIndex) {
     setUndecorated(true);
     getContentPane().setBackground(Color.BLACK);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -40,7 +34,7 @@ public class HomeView extends JFrame {
 
     renderMenu();
     renderClock();
-//    renderWeather();
+    renderWeather();
     renderSystemInfo();
     setTheme();
   }
@@ -52,18 +46,14 @@ public class HomeView extends JFrame {
   }
 
   private void renderWeather() {
-    int w = weatherPanel.getPreferredSize().width;
-    int h = weatherPanel.getPreferredSize().height;
-    weatherPanel.setBounds(50, 250, w, h);
+    weatherPanel.setBounds(50, 250, 500, 500);
     add(weatherPanel);
   }
 
   private void renderSystemInfo() {
-    int x = getWidth() - 100 - 80;
-    int y = getHeight() - 50 - (40 * 3);
-    int w = sysInfoPanel.getPreferredSize().width;
-    int h = sysInfoPanel.getPreferredSize().height;
-    sysInfoPanel.setBounds(x, y, w, h);
+    int x = getWidth() - 250;
+    int y = getHeight() - 210;
+    sysInfoPanel.setBounds(x, y, 250, 200);
     add(sysInfoPanel);
   }
 
@@ -90,20 +80,6 @@ public class HomeView extends JFrame {
     }
   }
 
-  private void renderSystemInf1o() {
-    int x = getWidth() - 100 - 80;
-    int y = getHeight() - 50 - (40 * 3);
-
-    Component[] components = {lblBattery, lblHD, lblRAM};
-
-    for (Component component : components) {
-      component.setBounds(x, y, 110, 40);
-      component.setFont(Constants.FONT_ACTION_SM);
-      add(component);
-      y += 40;
-    }
-  }
-
   public void changeTheme() {
     isDarkMode = !isDarkMode;
     setTheme();
@@ -115,18 +91,15 @@ public class HomeView extends JFrame {
 
     getContentPane().setBackground(background);
 
-    // Lista de componentes a serem atualizados
     Component[] backgroundComponents = {btnMenu, btnClose, btnChangeMonitor, btnTheme, getContentPane()};
-    Component[] foregroundComponents = {btnMenu, btnClose, btnChangeMonitor, btnTheme, lblBattery, lblHD, lblRAM};
+    Component[] foregroundComponents = {btnMenu, btnClose, btnChangeMonitor, btnTheme};
 
-    // Atualiza o fundo (background) e a cor do texto (foreground) do componente
     for (Component comp : backgroundComponents) comp.setBackground(background);
     for (Component comp : foregroundComponents) comp.setForeground(foreground);
 
-    // Atualiza o modo do painel do tempo
     //weatherPanel.setDarkMode(isDarkMode);
     clockPanel.setTheme(isDarkMode);
-
+    sysInfoPanel.setTheme(isDarkMode);
 
     revalidate();
     repaint();

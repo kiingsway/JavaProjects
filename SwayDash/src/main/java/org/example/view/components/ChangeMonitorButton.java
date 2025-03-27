@@ -30,13 +30,9 @@ public class ChangeMonitorButton extends JButton {
       SwingUtilities.invokeLater(() -> {
         int monitorIndex = getActualMonitor() + 1;
         if (monitorIndex >= monitorListSize) monitorIndex = 0;
-        try {
-          HomeView frame = new HomeView(monitorIndex);
-          new HomeController(frame);
-          frame.setVisible(true);
-        } catch (IOException e) {
-          JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        HomeView frame = new HomeView(monitorIndex);
+        new HomeController(frame);
+        frame.setVisible(true);
       });
     });
   }

@@ -1,5 +1,4 @@
 import org.example.dao.WeatherAPI;
-import org.example.model.weather.WeatherModel;
 
 import java.util.Arrays;
 
@@ -24,6 +23,7 @@ public class Test {
   }
 
 
+  @SuppressWarnings("InstantiationOfUtilityClass")
   public static void main(String[] args) {
     new Test();
   }

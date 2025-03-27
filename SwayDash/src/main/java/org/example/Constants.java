@@ -15,10 +15,11 @@ public class Constants {
   public static final Font FONT_CLOCK = loadFont(RAJDHANI_BOLD_FILE, 80f);
   public static final Font FONT_DATE = loadFont(RAJDHANI_MEDIUM_FILE, 25f);
 
-  public static final Font FONT_DEFAULT = loadFont(RAJDHANI_MEDIUM_FILE, 20f);
+  public static final Font FONT_DEFAULT = loadFont(RAJDHANI_MEDIUM_FILE, 25f);
   public static final Font FONT_EMOJI = new Font("Segoe UI Emoji", Font.BOLD, 18);
 
-  public static final Font FONT_WEATHER = new Font("Segoe UI Emoji", Font.BOLD, 80);
+  public static final Font FONT_WEATHER = loadFont(RAJDHANI_BOLD_FILE, 60f);
+
   public static final Font FONT_ACTION = new Font("Segoe UI Emoji", Font.BOLD, 30);
   public static final Font FONT_ACTION_SM = new Font("Segoe UI Emoji", Font.BOLD, 20);
 
@@ -44,5 +45,9 @@ public class Constants {
   public static void SHOW_ERROR_DIALOG(Component view, Exception e) {
     String errorType = e.getClass().getSimpleName();
     JOptionPane.showMessageDialog(view, e.getMessage(), "ERROR - " + errorType, JOptionPane.ERROR_MESSAGE);
+  }
+
+  public static void PRINT(String text) {
+    System.out.println(text);
   }
 }
