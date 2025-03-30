@@ -12,9 +12,6 @@ import java.awt.Color;
 
 public class IconLabelPanel extends JPanel {
 
-  private static final Font FONT_ICON = Constants.FONT_EMOJI;
-  private static final Font FONT_TEXT = Constants.FONT_DEFAULT;
-
   private final JLabel iconLabel = new JLabel();
   private final JLabel textLabel = new JLabel();
   private final JLabel text2Label = new JLabel();
@@ -23,9 +20,9 @@ public class IconLabelPanel extends JPanel {
     setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
     setOpaque(false);
 
-    iconLabel.setFont(FONT_ICON);
-    textLabel.setFont(FONT_TEXT);
-    text2Label.setFont(FONT_TEXT);
+    iconLabel.setFont(Constants.FONT_EMOJI);
+    textLabel.setFont(Constants.FONT_DEFAULT);
+    text2Label.setFont(Constants.FONT_DEFAULT);
 
     add(iconLabel);
     add(textLabel);

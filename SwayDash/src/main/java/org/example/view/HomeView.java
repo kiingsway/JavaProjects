@@ -8,16 +8,17 @@ import java.awt.*;
 
 public class HomeView extends JFrame {
 
-  private boolean isDarkMode = true;
-
   private final JButton btnMenu = new JButton("⭕");
-  private final ChangeMonitorButton btnChangeMonitor = new ChangeMonitorButton("🖥️", this);
+  private final JButton btnChangeMonitor = new JButton("️🖥️");
   private final JButton btnClose = new JButton("❌");
   private final JButton btnTheme = new JButton("🎨");
 
-  private final WeatherPanel weatherPanel = new WeatherPanel(isDarkMode);
-  private final ClockPanel clockPanel = new ClockPanel(isDarkMode);
-  private final SystemInfoPanel sysInfoPanel = new SystemInfoPanel(isDarkMode);
+  private final WeatherPanel weatherPanel = new WeatherPanel(true);
+  private final ClockPanel clockPanel = new ClockPanel(true);
+  private final SystemInfoPanel sysInfoPanel = new SystemInfoPanel(true);
+  private final CurrencyPanel currencyPanel = new CurrencyPanel(true);
+
+  private final JPopupMenu contextMenu = new JPopupMenu();
 
   public HomeView(int monitorIndex) {
     setUndecorated(true);
@@ -32,77 +33,46 @@ public class HomeView extends JFrame {
     Rectangle screenBounds = screens[monitorIndex].getDefaultConfiguration().getBounds();
     setBounds(screenBounds);
 
-    renderMenu();
-    renderClock();
-    renderWeather();
-    renderSystemInfo();
-    setTheme();
+    renderContextMenu();
+    renderPanels();
   }
 
-  private void renderClock() {
+  private void renderPanels() {
     clockPanel.setBounds(50, 50, 350, 150);
-    clockPanel.setBackground(Color.WHITE);
     add(clockPanel);
-  }
 
-  private void renderWeather() {
-    weatherPanel.setBounds(50, 250, 500, 500);
+    weatherPanel.setBounds(50, 250, 300, 250);
     add(weatherPanel);
-  }
 
-  private void renderSystemInfo() {
-    int x = getWidth() - 250;
-    int y = getHeight() - 210;
+    int w = getWidth(), h = getHeight();
+    int x = w - 250, y = h - 210;
+
     sysInfoPanel.setBounds(x, y, 250, 200);
     add(sysInfoPanel);
+
+    currencyPanel.setBounds(50, y, 250, 200);
+    add(currencyPanel);
   }
 
-  private void renderMenu() {
-    int x = getWidth() - 50 - 80;
-    int y = 50;
-
-    btnMenu.setFont(Constants.FONT_ACTION);
-    btnMenu.setFocusPainted(false);
-    btnMenu.setBorderPainted(false);
-    btnMenu.setBounds(x, y, 80, 70);
-    add(btnMenu);
+  private void renderContextMenu() {
+    UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(Color.GRAY, 1));
+    UIManager.put("PopupMenu.background", new Color(0, 0, 0, 0));
 
     JButton[] buttons = {btnTheme, btnChangeMonitor, btnClose};
 
-    for (int i = 0; i < buttons.length; i++) {
-      JButton btn = buttons[i];
+    int width = 0, height = 0;
+    for (JButton btn : buttons) {
       btn.setFont(Constants.FONT_ACTION);
       btn.setFocusPainted(false);
       btn.setBorderPainted(false);
-      btn.setBounds(x, y + ((i + 1) * 70) + 10, 80, 70);
-      btn.setVisible(false);
-      add(btn);
+      btn.setSize(new Dimension(80, 80));
+
+      height += btn.getPreferredSize().height;
+      width = Math.max(width, btn.getPreferredSize().width);
+      contextMenu.add(btn);
     }
-  }
 
-  public void changeTheme() {
-    isDarkMode = !isDarkMode;
-    setTheme();
-  }
-
-  private void setTheme() {
-    Color foreground = isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
-    Color background = isDarkMode ? Color.BLACK : Color.WHITE;
-
-    getContentPane().setBackground(background);
-
-    Component[] backgroundComponents = {btnMenu, btnClose, btnChangeMonitor, btnTheme, getContentPane()};
-    Component[] foregroundComponents = {btnMenu, btnClose, btnChangeMonitor, btnTheme};
-
-    for (Component comp : backgroundComponents) comp.setBackground(background);
-    for (Component comp : foregroundComponents) comp.setForeground(foreground);
-
-    //weatherPanel.setDarkMode(isDarkMode);
-    clockPanel.setTheme(isDarkMode);
-    sysInfoPanel.setTheme(isDarkMode);
-
-    revalidate();
-    repaint();
+    contextMenu.setPreferredSize(new Dimension(width + 2, height + 2));
   }
 
   public JButton btnMenu() {return btnMenu;}
@@ -112,4 +82,14 @@ public class HomeView extends JFrame {
   public JButton btnChangeMonitor() {return btnChangeMonitor;}
 
   public JButton btnClose() {return btnClose;}
+
+  public ClockPanel clockPanel() {return clockPanel;}
+
+  public SystemInfoPanel sysInfoPanel() {return sysInfoPanel;}
+
+  public WeatherPanel weatherPanel() {return weatherPanel;}
+
+  public CurrencyPanel currencyPanel() {return currencyPanel;}
+
+  public JPopupMenu contextMenu() {return contextMenu;}
 }

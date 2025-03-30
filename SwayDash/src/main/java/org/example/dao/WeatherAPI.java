@@ -39,7 +39,6 @@ public class WeatherAPI {
   private String status;
   private Integer temp;
   private HighLowWeatherModel highLow = new HighLowWeatherModel(null, null);
-  //private HighLowWeatherModel highLow ;
   private Integer feelsLike;
   private HourlyForecastModel hourlyForecast;
   private SunsetSunriseModel sunsetSunrise;
@@ -48,7 +47,6 @@ public class WeatherAPI {
     url = "https://www.theweathernetwork.com/en/city/" + cityUrl + "/current";
 
     updateValues();
-
     Timer timer = new Timer(15000, _ -> updateValues());
     timer.start();
   }
