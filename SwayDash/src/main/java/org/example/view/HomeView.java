@@ -20,7 +20,7 @@ public class HomeView extends JFrame {
 
   private final JPopupMenu contextMenu = new JPopupMenu();
 
-  public HomeView(int monitorIndex) {
+  public HomeView(int initialMonitorIndex) {
     setUndecorated(true);
     getContentPane().setBackground(Color.BLACK);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -29,8 +29,8 @@ public class HomeView extends JFrame {
 
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     GraphicsDevice[] screens = ge.getScreenDevices();
-    monitorIndex = monitorIndex >= screens.length ? screens.length - 1 : monitorIndex;
-    Rectangle screenBounds = screens[monitorIndex].getDefaultConfiguration().getBounds();
+    initialMonitorIndex = initialMonitorIndex >= screens.length ? screens.length - 1 : initialMonitorIndex;
+    Rectangle screenBounds = screens[initialMonitorIndex].getDefaultConfiguration().getBounds();
     setBounds(screenBounds);
 
     renderContextMenu();
@@ -38,7 +38,7 @@ public class HomeView extends JFrame {
   }
 
   private void renderPanels() {
-    clockPanel.setBounds(50, 50, 350, 150);
+    clockPanel.setBounds(50, 50, 350, 115);
     add(clockPanel);
 
     weatherPanel.setBounds(50, 250, 300, 250);

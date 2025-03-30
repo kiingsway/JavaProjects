@@ -1,11 +1,12 @@
 package org.example.view.components;
 
+import org.example.model.components.ThemedPanel;
 import org.example.model.systemInfo.SystemInfo;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class SystemInfoPanel extends JPanel {
+public class SystemInfoPanel extends JPanel implements ThemedPanel {
 
   private boolean isDarkMode;
   private final SystemInfo sys = new SystemInfo();

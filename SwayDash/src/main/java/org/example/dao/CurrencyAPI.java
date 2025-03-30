@@ -37,18 +37,29 @@ public class CurrencyAPI {
     }).start();
   }
 
-  private void useJsoup() {
-    try {
-      Document doc = Jsoup.connect(CADBRL_URL).get();
-      CADBRL = Optional.ofNullable(getFloatOfTargetInput(doc)).orElse(0.0f);
-      doc = Jsoup.connect(USDBRL_URL).get();
-      USDBRL = Optional.ofNullable(getFloatOfTargetInput(doc)).orElse(0.0f);
-      doc = Jsoup.connect(USDCAD_URL).get();
-      USDCAD = Optional.ofNullable(getFloatOfTargetInput(doc)).orElse(0.0f);
-    } catch (NullPointerException | IOException e) {
-      SHOW_ERROR_DIALOG(null, e);
+  private void useJsoup() throws IOException {
+    String[] urls = {CADBRL_URL, USDBRL_URL, USDCAD_URL};
+
+    for (String url : urls) {
+      Document doc = Jsoup.connect(url).get();
+      float value = Optional.ofNullable(getFloatOfTargetInput(doc)).orElse(0.0f);
+
+      switch (url) {
+        case CADBRL_URL:
+          CADBRL = value;
+          break;
+        case USDBRL_URL:
+          USDBRL = value;
+          break;
+        case USDCAD_URL:
+          USDCAD = value;
+          break;
+        default:
+          throw new RuntimeException("Unknown URL: " + url);
+      }
     }
   }
+
 
   private static Float getFloatOfTargetInput(Document doc) {
     Element element = doc.selectFirst("#" + "target-input");

@@ -20,6 +20,7 @@ public class Constants {
 
   public static final Font FONT_WEATHER = loadFont(RAJDHANI_BOLD_FILE, 60f);
   public static final Font FONT_ACTION = new Font("Segoe UI Emoji", Font.BOLD, 30);
+  public static final Font FONT_ERROR =  new Font("Verdana", Font.PLAIN, 16);
 
   public static final Color COLOR_DARK_GRAY_65 = new Color(Color.BLACK.getRed(), Color.BLACK.getGreen(), Color.BLACK.getBlue(), 166);
   public static final Color COLOR_LIGHT_GRAY_65 = new Color(Color.WHITE.getRed(), Color.WHITE.getGreen(), Color.WHITE.getBlue(), 166);

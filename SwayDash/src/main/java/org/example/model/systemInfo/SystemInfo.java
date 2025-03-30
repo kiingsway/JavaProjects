@@ -30,13 +30,12 @@ public class SystemInfo {
     float current = battery.getCurrentCapacity();
     float max = battery.getMaxCapacity();
     float percentage = (current / max) * 100;
-    if (percentage >= 99.87) return "100%";
+    if (percentage >= 99.98) return "100%";
     else return String.format("%.1f%%", percentage);
   }
 
   public MemoryInfo getHDInfo(String partition) {
-    float total = 0;
-    float free = 0;
+    float total = 0, free = 0;
 
     FileSystem fs = systemInfo.getOperatingSystem().getFileSystem();
 

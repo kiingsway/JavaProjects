@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.model.components.ThemedPanel;
 import org.example.view.HomeView;
 
 import javax.swing.*;
@@ -7,14 +8,11 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import static org.example.Constants.PRINT;
-
 public class HomeController {
 
+  private boolean menuOpened = false, isDarkMode = true;
   private int monitorIndex;
-  private boolean isDarkMode = true;
   private final HomeView view;
-  private boolean menuOpened = false;
 
   public HomeController(HomeView view, int monitorIndex) {
     this.view = view;
@@ -56,14 +54,11 @@ public class HomeController {
 
     Component[] backgroundComponents = {view.btnMenu(), view.btnClose(), view.btnChangeMonitor(), view.btnTheme(), view.getContentPane()};
     Component[] foregroundComponents = {view.btnMenu(), view.btnClose(), view.btnChangeMonitor(), view.btnTheme()};
+    ThemedPanel[] themedComponents = {view.weatherPanel(), view.clockPanel(), view.sysInfoPanel(), view.currencyPanel()};
 
-    for (Component comp : backgroundComponents) comp.setBackground(background);
-    for (Component comp : foregroundComponents) comp.setForeground(foreground);
-
-    view.weatherPanel().setTheme(isDarkMode);
-    view.clockPanel().setTheme(isDarkMode);
-    view.sysInfoPanel().setTheme(isDarkMode);
-    view.currencyPanel().setTheme(isDarkMode);
+    for (Component c : backgroundComponents) c.setBackground(background);
+    for (Component c : foregroundComponents) c.setForeground(foreground);
+    for (ThemedPanel c : themedComponents) c.setTheme(isDarkMode);
 
     view.revalidate();
     view.repaint();

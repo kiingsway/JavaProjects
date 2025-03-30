@@ -2,11 +2,12 @@ package org.example.view.components;
 
 import org.example.Constants;
 import org.example.dao.WeatherAPI;
+import org.example.model.components.ThemedPanel;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class WeatherPanel extends JPanel {
+public class WeatherPanel extends JPanel implements ThemedPanel {
 
   private boolean isDarkMode;
   private final WeatherAPI weather = new WeatherAPI(WeatherAPI.TOCA_WEATHER);

@@ -2,19 +2,20 @@ package org.example.view.components;
 
 import org.example.Constants;
 import org.example.dao.CurrencyAPI;
+import org.example.model.components.ThemedPanel;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class CurrencyPanel extends JPanel {
+public class CurrencyPanel extends JPanel implements ThemedPanel {
 
   private boolean isDarkMode;
 
   private static final JLabel lblCADBRL = new JLabel("");
-  private static final JLabel lblUSDBRL = new JLabel("USD$ 0,99 = R$ 6,99");
-  private static final JLabel lblUSDCAD = new JLabel("USD$ 0,99 = CAD$ 1,99");
+  private static final JLabel lblUSDBRL = new JLabel("");
+  private static final JLabel lblUSDCAD = new JLabel("");
 
-  CurrencyAPI currencyAPI = new CurrencyAPI();
+  private static final CurrencyAPI currencyAPI = new CurrencyAPI();
 
   public CurrencyPanel(boolean isDarkMode) {
     this.isDarkMode = isDarkMode;
@@ -40,9 +41,9 @@ public class CurrencyPanel extends JPanel {
   }
 
   private void updateValues() {
-    lblCADBRL.setText("CAD$ 1,00 = R$ " + String.format("%.2f", currencyAPI.CADBRL()));
-    lblUSDBRL.setText("USD$ 1,00 = R$ " + String.format("%.2f", currencyAPI.USDBRL()));
-    lblUSDCAD.setText("USD$ 1,00 = CAD$ " + String.format("%.2f", currencyAPI.USDCAD()));
+    lblCADBRL.setText("(CAD) R$ " + String.format("%.2f", currencyAPI.CADBRL()));
+    lblUSDBRL.setText("(USD) R$ " + String.format("%.2f", currencyAPI.USDBRL()));
+    lblUSDCAD.setText("(USD) CAD$ " + String.format("%.2f", currencyAPI.USDCAD()));
   }
 
   public void setTheme(boolean isDarkMode) {
