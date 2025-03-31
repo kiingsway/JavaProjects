@@ -8,6 +8,8 @@ import java.io.IOException;
 
 public class Constants {
 
+  public static final String APP_TITLE = "Sway Dash";
+
   private static final String FONTS_PATH = "src/main/resources/Rajdhani-";
   private static final String RAJDHANI_BOLD_FILE = FONTS_PATH + "Bold.ttf";
   private static final String RAJDHANI_MEDIUM_FILE = FONTS_PATH + "Medium.ttf";
@@ -38,6 +40,10 @@ public class Constants {
       Constants.PRINT("Erro ao carregar a fonte '" + path + "': " + e.getMessage());
       return new Font("Arial", Font.PLAIN, (int) size); // Fallback para Arial
     }
+  }
+
+  public static int CLAMP(int val, int min, int max) {
+    return Math.max(min, Math.min(val, max));
   }
 
   public static Integer STRING_TO_INTEGER(String string) {

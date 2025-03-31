@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.model.components.ThemedPanel;
+import org.example.Constants;
 import org.example.view.HomeView;
 
 import javax.swing.*;
@@ -10,7 +11,7 @@ import java.awt.event.MouseEvent;
 
 public class HomeController {
 
-  private boolean menuOpened = false, isDarkMode = true;
+  private boolean isDarkMode = true;
   private int monitorIndex;
   private final HomeView view;
 
@@ -23,38 +24,37 @@ public class HomeController {
   }
 
   private void handleListeners() {
-    view.btnMenu().addActionListener(_ -> toggleMenu());
-    view.btnClose().addActionListener(_ -> System.exit(0));
     view.btnTheme().addActionListener(_ -> setTheme(!isDarkMode));
     view.btnChangeMonitor().addActionListener(_ -> changeMonitor());
+    view.btnAppLog().addActionListener(_ -> toggleAppLog());
+    view.btnClose().addActionListener(_ -> closeApp());
 
     view.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
-        if (menuOpened) toggleMenu();
+        hideMenu();
         if (SwingUtilities.isRightMouseButton(e)) view.contextMenu().show(view, e.getX(), e.getY());
       }
     });
   }
 
-  private void toggleMenu() {
-    menuOpened = !menuOpened;
-    view.btnClose().setVisible(menuOpened);
-    view.btnTheme().setVisible(menuOpened);
-    view.btnChangeMonitor().setVisible(menuOpened);
+  private void hideMenu() {
+    if (!view.contextMenu().isVisible()) return;
+    view.contextMenu().setVisible(false);
 
     view.revalidate();
     view.repaint();
   }
 
   private void setTheme(boolean isDarkMode) {
+    hideMenu();
     this.isDarkMode = isDarkMode;
     Color foreground = isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
     Color background = isDarkMode ? Color.BLACK : Color.WHITE;
 
-    Component[] backgroundComponents = {view.btnMenu(), view.btnClose(), view.btnChangeMonitor(), view.btnTheme(), view.getContentPane()};
-    Component[] foregroundComponents = {view.btnMenu(), view.btnClose(), view.btnChangeMonitor(), view.btnTheme()};
-    ThemedPanel[] themedComponents = {view.weatherPanel(), view.clockPanel(), view.sysInfoPanel(), view.currencyPanel()};
+    Component[] backgroundComponents = {view.btnAppLog(), view.btnClose(), view.btnChangeMonitor(), view.btnTheme(), view.getContentPane()};
+    Component[] foregroundComponents = {view.btnAppLog(), view.btnClose(), view.btnChangeMonitor(), view.btnTheme()};
+    ThemedPanel[] themedComponents = {view.weatherPanel(), view.clockPanel(), view.sysInfoPanel(), view.currencyPanel(), view.appLogPanel()};
 
     for (Component c : backgroundComponents) c.setBackground(background);
     for (Component c : foregroundComponents) c.setForeground(foreground);
@@ -65,17 +65,19 @@ public class HomeController {
   }
 
   private void changeMonitor() {
+    hideMenu();
     GraphicsDevice[] screens = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
     if (monitorIndex + 1 >= screens.length) monitorIndex = 0;
     else monitorIndex += 1;
 
     GraphicsDevice screen = screens[monitorIndex];
     DisplayMode dm = screen.getDisplayMode();
-    int width = dm.getWidth();
-    int height = dm.getHeight();
+    Dimension size = new Dimension(dm.getWidth(), dm.getHeight());
     Rectangle bounds = screen.getDefaultConfiguration().getBounds();
 
-    view.setSize(width, height);
+    view.appLogPanel().setScreenSize(new Rectangle(size.width, size.height));
+
+    view.setSize(size.width, size.height);
     view.setLocation(bounds.x, bounds.y);
     view.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
@@ -87,5 +89,20 @@ public class HomeController {
 
     view.revalidate();
     view.repaint();
+  }
+
+  private void toggleAppLog() {
+    hideMenu();
+    view.appLogPanel().setVisible(!view.appLogPanel().isVisible());
+  }
+
+  private void closeApp() {
+    String tit = Constants.APP_TITLE;
+    String msg = "Are you sure you want to exit?";
+    int resp = JOptionPane.showConfirmDialog(view, msg, tit, JOptionPane.YES_NO_OPTION);
+    if (resp == JOptionPane.YES_OPTION) {
+      view.dispose();
+      System.exit(0);
+    }
   }
 }
