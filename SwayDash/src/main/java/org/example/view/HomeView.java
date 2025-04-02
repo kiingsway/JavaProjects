@@ -6,13 +6,11 @@ import org.example.view.components.*;
 import javax.swing.*;
 import java.awt.*;
 
-import static org.example.Constants.PRINT;
-
 public class HomeView extends JFrame {
 
   private final JButton btnTheme = new JButton("🎨");
   private final JButton btnChangeMonitor = new JButton("️🖥️");
-  private final JButton btnAppLog = new JButton("\uD83D\uDDC2\uFE0F");
+  private final JButton btnAppLog = new JButton("\uD83D\uDDC2️");
   private final JButton btnClose = new JButton("❌");
 
   private final WeatherPanel weatherPanel = new WeatherPanel(true);
@@ -43,14 +41,17 @@ public class HomeView extends JFrame {
   }
 
   private void renderPanels() {
+    int w = getWidth(), h = getHeight();
+    int x = w - 250, y = h - 210;
+
+    currencyPanel.setBounds(50, y, 250, 200);
+    add(currencyPanel);
+
     clockPanel.setBounds(50, 50, 350, 115);
     add(clockPanel);
 
-    weatherPanel.setBounds(50, 250, 300, 250);
+    weatherPanel.setBounds(50, 250, 400, 400);
     add(weatherPanel);
-
-    int w = getWidth(), h = getHeight();
-    int x = w - 250, y = h - 210;
 
     appLogPanel.setBounds(w - 450, 50, 400, 300);
     appLogPanel.setVisible(false);
@@ -58,9 +59,6 @@ public class HomeView extends JFrame {
 
     sysInfoPanel.setBounds(x, y, 250, 200);
     add(sysInfoPanel);
-
-    currencyPanel.setBounds(50, y, 250, 200);
-    add(currencyPanel);
   }
 
   private void renderContextMenu() {

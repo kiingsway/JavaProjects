@@ -44,6 +44,12 @@
             <artifactId>jfreechart</artifactId>
             <version>1.5.5</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.kitfox.svg</groupId>
+            <artifactId>svg-salamander</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
 </project>

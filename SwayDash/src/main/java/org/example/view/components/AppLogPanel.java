@@ -35,11 +35,6 @@ public class AppLogPanel extends DraggablePanel implements ThemedPanel {
     add(btnCloseLog);
   }
 
-
-  private void updateValues() {
-
-  }
-
   private void setPanelLocation(Rectangle screenBounds) {
     int width = getWidth(), height = getHeight();
     Point location = getLocation();

@@ -14,6 +14,10 @@ public class Constants {
   private static final String RAJDHANI_BOLD_FILE = FONTS_PATH + "Bold.ttf";
   private static final String RAJDHANI_MEDIUM_FILE = FONTS_PATH + "Medium.ttf";
 
+  public static final Font FONT_DEFAULT_30 = loadFont(RAJDHANI_MEDIUM_FILE, 30f);
+  public static final Font FONT_DEFAULT_20 = loadFont(RAJDHANI_MEDIUM_FILE, 20f);
+  public static final Font FONT_DEFAULT_15 = loadFont(RAJDHANI_MEDIUM_FILE, 15f);
+
   public static final Font FONT_CLOCK = loadFont(RAJDHANI_BOLD_FILE, 80f);
   public static final Font FONT_DATE = loadFont(RAJDHANI_MEDIUM_FILE, 25f);
 

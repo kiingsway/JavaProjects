@@ -6,7 +6,7 @@ import org.example.view.HomeView;
 import javax.swing.*;
 
 public class Main {
-  private static final int DEFAULT_MONITOR_INDEX = 1; // 0 = Main, 1 = Other display
+  private static final int DEFAULT_MONITOR_INDEX = 0; // 0 = Main, 1 = Other display
 
   public static void main(String[] args) {
     SwingUtilities.invokeLater(() -> {

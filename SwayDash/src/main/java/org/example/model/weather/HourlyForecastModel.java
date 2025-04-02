@@ -7,17 +7,13 @@ public record HourlyForecastModel(
 ) {
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-
-    if (items == null || items.isEmpty()) return null;
-
-    for (HourlyForecastItem item : items) {
-      sb.append("-----------");
-      sb.append(item);
-    }
-
-    sb.append("\n");
-    return sb.toString();
+    return "HourlyForecastModel {\n  items=" + //
+            (items != null && !items.isEmpty() ? items.stream() //
+                    .map(HourlyForecastItem::toString) //
+                    .reduce((a, b) -> a + ",\n  " + b) //
+                    .orElse("[]") //
+                    : "[]") + //
+            "\n}";
   }
 }
 

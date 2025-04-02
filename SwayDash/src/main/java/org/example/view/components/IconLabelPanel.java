@@ -6,7 +6,6 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
-import java.awt.Font;
 import java.awt.FlowLayout;
 import java.awt.Color;
 
