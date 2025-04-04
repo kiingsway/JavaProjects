@@ -8,7 +8,6 @@ import java.awt.*;
 
 public class SystemInfoPanel extends JPanel implements ThemedPanel {
 
-  private boolean isDarkMode;
   private final SystemInfo sys = new SystemInfo();
 
   private static final IconLabelPanel lblBattery = new IconLabelPanel();
@@ -16,7 +15,6 @@ public class SystemInfoPanel extends JPanel implements ThemedPanel {
   private static final IconLabelPanel lblRAM = new IconLabelPanel();
 
   public SystemInfoPanel(boolean isDarkMode) {
-    this.isDarkMode = isDarkMode;
     setTheme(isDarkMode);
 
     setLayout(null);
@@ -54,9 +52,8 @@ public class SystemInfoPanel extends JPanel implements ThemedPanel {
   }
 
   public void setTheme(boolean isDarkMode) {
-    this.isDarkMode = isDarkMode;
-    Color foreground = this.isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
-    Color background = this.isDarkMode ? Color.BLACK : Color.WHITE;
+    Color foreground = isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
+    Color background = isDarkMode ? Color.BLACK : Color.WHITE;
 
     Component[] backgroundComponents = {this};
     Component[] foregroundComponents = {lblBattery, lblHD, lblRAM};

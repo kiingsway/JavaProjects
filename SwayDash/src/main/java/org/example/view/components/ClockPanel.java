@@ -11,8 +11,6 @@ import java.util.Locale;
 
 public class ClockPanel extends JPanel implements ThemedPanel {
 
-  private boolean isDarkMode;
-
   private static final SimpleDateFormat CLOCK_FORMAT = new SimpleDateFormat("HH:mm:ss");
   private static final SimpleDateFormat WEEK_FORMAT_FR = new SimpleDateFormat("EEEE", Locale.CANADA_FRENCH);
   private static final SimpleDateFormat WEEK_FORMAT_BR = new SimpleDateFormat("EEE", Locale.forLanguageTag("pt-BR"));
@@ -22,7 +20,6 @@ public class ClockPanel extends JPanel implements ThemedPanel {
   private static final JLabel lblDate = new JLabel();
 
   public ClockPanel(boolean isDarkMode) {
-    this.isDarkMode = isDarkMode;
     setTheme(isDarkMode);
 
     setLayout(null);
@@ -61,9 +58,8 @@ public class ClockPanel extends JPanel implements ThemedPanel {
 
   @Override
   public void setTheme(boolean isDarkMode) {
-    this.isDarkMode = isDarkMode;
-    Color foreground = this.isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
-    Color background = this.isDarkMode ? Color.BLACK : Color.WHITE;
+    Color foreground = isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
+    Color background = isDarkMode ? Color.BLACK : Color.WHITE;
 
     Component[] backgroundComponents = {this};
     Component[] foregroundComponents = {lblClock, lblDate};

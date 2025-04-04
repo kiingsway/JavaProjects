@@ -11,17 +11,11 @@ public class AppLogPanel extends DraggablePanel implements ThemedPanel {
 
   private final JButton btnCloseLog = new JButton("❌");
 
-  private boolean isDarkMode;
-
   public AppLogPanel(boolean isDarkMode, Rectangle screenBounds) {
     super(screenBounds);
-    this.isDarkMode = isDarkMode;
-
     setTheme(isDarkMode);
     setBackground(Color.GRAY);
-
     setLayout(null);
-
     renderComponents();
   }
 
@@ -54,9 +48,8 @@ public class AppLogPanel extends DraggablePanel implements ThemedPanel {
 
   @Override
   public void setTheme(boolean isDarkMode) {
-    this.isDarkMode = isDarkMode;
-    Color foreground = this.isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
-    Color background = this.isDarkMode ? Color.DARK_GRAY : Color.LIGHT_GRAY;
+    Color foreground = isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
+    Color background = isDarkMode ? Color.DARK_GRAY : Color.LIGHT_GRAY;
 
     Component[] backgroundComponents = {this, btnCloseLog};
     Component[] foregroundComponents = {btnCloseLog};

@@ -1,6 +1,5 @@
 package org.example.dao;
 
-import org.example.Constants;
 import org.example.model.weather.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,9 +12,6 @@ import org.openqa.selenium.support.ui.*;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -39,7 +35,6 @@ public class WeatherAPI {
 
   private final String url;
   private String city;
-  private ImageIcon weatherImg;
   private String status;
   private Integer temp;
   private HighLowWeatherModel highLow = new HighLowWeatherModel(null, null);
@@ -71,7 +66,6 @@ public class WeatherAPI {
     try {
       Document doc = Jsoup.connect(url).get();
       this.city = getStringOfComponent(doc, "location-label");
-      this.weatherImg = getWeatherImage(doc);
       this.status = getStringOfComponent(doc, "weather-text");
       this.temp = getNumberOfComponent(doc, "temperature-text");
       this.highLow = getHighLow(doc);
@@ -111,23 +105,6 @@ public class WeatherAPI {
     Element element = doc.selectFirst("[data-testid=" + component + "]");
     if (element == null) return null;
     return STRING_TO_INTEGER(element.text());
-  }
-
-  private static ImageIcon getWeatherImage(Document doc) {
-    Element element = doc.selectFirst("[data-testid=observation-summary]");
-    if (element == null) return null;
-    Element image = element.selectFirst("img");
-    if (image == null) return null;
-    String img_url = image.attr("src");
-    if (img_url.isEmpty()) return null;
-    try {
-      URI uri = new URI(img_url);
-      URL imageUrl = uri.toURL();
-      return new ImageIcon(imageUrl);
-    } catch (Exception e) {
-      e.printStackTrace();
-      return null;
-    }
   }
 
   private static HighLowWeatherModel getHighLow(Document doc) {
@@ -212,7 +189,6 @@ public class WeatherAPI {
     return "WeatherAPI {" +  //
             "\n  url='" + url + '\'' +  //
             ",\n  city='" + city + '\'' +  //
-            ",\n  weatherImg='" + weatherImg + '\'' +  //
             ",\n  status='" + status + '\'' +  //
             ",\n  temp=" + temp + "°C" +  //
             ",\n  highLow=" + highLow +  //

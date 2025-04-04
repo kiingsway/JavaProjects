@@ -9,8 +9,6 @@ import java.awt.*;
 
 public class CurrencyPanel extends JPanel implements ThemedPanel {
 
-  private boolean isDarkMode;
-
   private static final JLabel lblCADBRL = new JLabel("");
   private static final JLabel lblUSDBRL = new JLabel("");
   private static final JLabel lblUSDCAD = new JLabel("");
@@ -18,7 +16,6 @@ public class CurrencyPanel extends JPanel implements ThemedPanel {
   private static final CurrencyAPI currencyAPI = new CurrencyAPI();
 
   public CurrencyPanel(boolean isDarkMode) {
-    this.isDarkMode = isDarkMode;
     setTheme(isDarkMode);
 
     setLayout(null);
@@ -47,10 +44,8 @@ public class CurrencyPanel extends JPanel implements ThemedPanel {
   }
 
   public void setTheme(boolean isDarkMode) {
-    this.isDarkMode = isDarkMode;
-
-    Color foreground = this.isDarkMode ? Constants.COLOR_LIGHT_GRAY_65 : Constants.COLOR_DARK_GRAY_65;
-    Color background = this.isDarkMode ? Color.BLACK : Color.WHITE;
+    Color foreground = isDarkMode ? Constants.COLOR_LIGHT_GRAY_65 : Constants.COLOR_DARK_GRAY_65;
+    Color background = isDarkMode ? Color.BLACK : Color.WHITE;
 
     Component[] backgroundComponents = {this};
     Component[] foregroundComponents = {lblCADBRL, lblUSDBRL, lblUSDCAD};

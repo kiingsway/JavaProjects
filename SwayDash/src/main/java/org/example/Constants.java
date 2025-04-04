@@ -5,6 +5,9 @@ import javax.swing.JOptionPane;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class Constants {
 
@@ -55,6 +58,20 @@ public class Constants {
     String numberText = string.replaceAll("[^0-9]", "");
     if (numberText.isEmpty()) return null;
     return Integer.parseInt(string.replaceAll("[^0-9-]", ""));
+  }
+
+  public static void OPEN_WEBSITE(String url) {
+    try {
+      URI uri = new URI(url);
+      if (Desktop.isDesktopSupported()) {
+        Desktop desktop = Desktop.getDesktop();
+        if (desktop.isSupported(Desktop.Action.BROWSE)) {
+          desktop.browse(uri);
+        }
+      }
+    } catch (IOException | URISyntaxException e) {
+      SHOW_ERROR_DIALOG(null, e);
+    }
   }
 
   public static void SHOW_ERROR_DIALOG(Component view, Exception e) {
