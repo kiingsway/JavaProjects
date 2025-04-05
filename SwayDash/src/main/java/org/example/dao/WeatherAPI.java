@@ -1,5 +1,6 @@
 package org.example.dao;
 
+import org.example.Constants;
 import org.example.model.weather.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -33,7 +34,7 @@ public class WeatherAPI {
   private static final SimpleDateFormat YMD_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
   private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd h:mma", Locale.ENGLISH);
 
-  private final String url;
+  private String uri;
   private String city;
   private String status;
   private Integer temp;
@@ -42,8 +43,8 @@ public class WeatherAPI {
   private HourlyForecastModel hourlyForecast;
   private SunsetSunriseModel sunsetSunrise;
 
-  public WeatherAPI(String cityUrl) {
-    url = "https://www.theweathernetwork.com/en/city/" + cityUrl + "/current";
+  public WeatherAPI(String cityUri) {
+    this.uri = cityUri;
 
     updateValues();
     Timer timer = new Timer(15000, _ -> updateValues());
@@ -64,7 +65,7 @@ public class WeatherAPI {
 
   private void useJsoup() {
     try {
-      Document doc = Jsoup.connect(url).get();
+      Document doc = Jsoup.connect(url()).get();
       this.city = getStringOfComponent(doc, "location-label");
       this.status = getStringOfComponent(doc, "weather-text");
       this.temp = getNumberOfComponent(doc, "temperature-text");
@@ -82,7 +83,7 @@ public class WeatherAPI {
 
     WebDriver driver = new ChromeDriver(options);
     try {
-      driver.get(url);
+      driver.get(url());
 
       // Esperar que o elemento de sunset/sunrise esteja presente na página
       WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
@@ -168,9 +169,14 @@ public class WeatherAPI {
     return new HourlyForecastModel(items);
   }
 
+  public void setCity(String cityUri) {
+    this.uri = cityUri;
+    updateValues();
+  }
+
   public String city() {return city;}
 
-  public String url() {return url;}
+  public String url() {return "https://www.theweathernetwork.com/en/city/" + uri + "/current";}
 
   public String status() {return status;}
 
@@ -187,7 +193,7 @@ public class WeatherAPI {
   @Override
   public String toString() {
     return "WeatherAPI {" +  //
-            "\n  url='" + url + '\'' +  //
+            "\n  url='" + url() + '\'' +  //
             ",\n  city='" + city + '\'' +  //
             ",\n  status='" + status + '\'' +  //
             ",\n  temp=" + temp + "°C" +  //
@@ -197,4 +203,5 @@ public class WeatherAPI {
             ",\n  sunsetSunrise=" + sunsetSunrise +  //
             "\n}";  //
   }
+
 }

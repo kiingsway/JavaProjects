@@ -12,10 +12,15 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class WeatherPanel extends JPanel implements ThemedPanel {
 
-  private final WeatherAPI weather = new WeatherAPI(WeatherAPI.TOCA_WEATHER);
+  private int cityIndex = 0;
+  private final String[] cities = {WeatherAPI.TOCA_WEATHER, WeatherAPI.SPBR_WEATHER, WeatherAPI.NUGL_WEATHER};
+  private final WeatherAPI weather = new WeatherAPI(cities[cityIndex]);
   private final JLabel lblTemperature = new JLabel();
   private final JLabel lblHigh = new JLabel();
   private final JLabel lblLow = new JLabel();
@@ -25,53 +30,25 @@ public class WeatherPanel extends JPanel implements ThemedPanel {
 
   private final JPanel tempHighLowPanel = new JPanel();
   private final JPanel statusFeelsPanel = new JPanel();
+  private final JPanel cityPanel = new JPanel();
 
   private final HForecastPanel hForecastPanel = new HForecastPanel();
 
   public WeatherPanel(boolean isDarkMode) {
     setLayout(null);
+    setTheme(isDarkMode);
 
     renderTempHighLow();
     renderStatusFeels();
-
-    lblCity.setForeground(isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY);
-    lblCity.setFont(Constants.FONT_DEFAULT_30);
-    lblCity.setHorizontalAlignment(SwingConstants.LEFT);
-    lblCity.setBounds(0, 130, 150, 30);
-
-    hForecastPanel.setLayout(null);
-    hForecastPanel.setBounds(0, 170, 400, 100);
-
-    setTheme(isDarkMode);
-
-    add(lblStatus);
-    add(lblFeelsLike);
-    add(lblCity);
-    add(hForecastPanel);
+    renderCity();
+    renderForecastPanel();
 
     updateValues();
     Timer timer = new Timer(5000, _ -> updateValues());
     timer.start();
-
-    addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseEntered(MouseEvent e) {
-        //
-      }
-
-      @Override
-      public void mouseExited(MouseEvent e) {
-        //
-      }
-    });
   }
 
   private void renderTempHighLow() {
-    tempHighLowPanel.setLayout(null);
-    tempHighLowPanel.setBounds(0, 0, 200, 70);
-    tempHighLowPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    tempHighLowPanel.setToolTipText("Click to open The Weather Network");
-
     lblTemperature.setFont(Constants.FONT_WEATHER);
     lblTemperature.setHorizontalAlignment(SwingConstants.LEFT);
     lblTemperature.setBounds(0, 0, 150, 70);
@@ -84,6 +61,11 @@ public class WeatherPanel extends JPanel implements ThemedPanel {
     lblLow.setHorizontalAlignment(SwingConstants.LEFT);
     lblLow.setBounds(150, 32, 100, 35);
 
+    tempHighLowPanel.setLayout(null);
+    tempHighLowPanel.setBounds(0, 0, 200, 70);
+    tempHighLowPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    tempHighLowPanel.setToolTipText("Click to open The Weather Network");
+
     tempHighLowPanel.add(lblTemperature);
     tempHighLowPanel.add(lblHigh);
     tempHighLowPanel.add(lblLow);
@@ -91,9 +73,10 @@ public class WeatherPanel extends JPanel implements ThemedPanel {
     tempHighLowPanel.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
-        Constants.OPEN_WEBSITE(weather.url());
+        if (SwingUtilities.isLeftMouseButton(e)) Constants.OPEN_WEBSITE(weather.url());
       }
     });
+
 
     add(tempHighLowPanel);
   }
@@ -102,20 +85,48 @@ public class WeatherPanel extends JPanel implements ThemedPanel {
     statusFeelsPanel.setLayout(null);
     statusFeelsPanel.setBounds(0, 70, 300, 60);
 
-    //lblStatus.setForeground(isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY);
     lblStatus.setFont(Constants.FONT_DEFAULT_30);
     lblStatus.setHorizontalAlignment(SwingConstants.LEFT);
-    lblStatus.setBounds(0, 0, 300, 30);
+    lblStatus.setBounds(0, 0, 100, 30);
 
-    //lblFeelsLike.setForeground(isDarkMode ? Constants.COLOR_LIGHT_GRAY_80 : Constants.COLOR_DARK_GRAY_80);
     lblFeelsLike.setFont(Constants.FONT_DEFAULT_20);
     lblFeelsLike.setHorizontalAlignment(SwingConstants.LEFT);
     lblFeelsLike.setBounds(0, 35, 150, 30);
 
-    statusFeelsPanel.add(lblStatus);
-    statusFeelsPanel.add(lblFeelsLike);
+    statusFeelsPanel.add(lblStatus, JLayeredPane.POPUP_LAYER);
+    statusFeelsPanel.add(lblFeelsLike, JLayeredPane.POPUP_LAYER);
 
     add(statusFeelsPanel);
+  }
+
+  private void renderCity() {
+    lblCity.setFont(Constants.FONT_DEFAULT_30);
+    lblCity.setHorizontalAlignment(SwingConstants.LEFT);
+    lblCity.setBounds(0, 0, 200, 30);
+    cityPanel.add(lblCity);
+
+    cityPanel.setLayout(null);
+    cityPanel.setBounds(0, 130, 200, 30);
+    cityPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    cityPanel.setToolTipText("Click to change the city");
+
+    cityPanel.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+        cityIndex++;
+        if (cityIndex >= cities.length) cityIndex = 0;
+        weather.setCity(cities[cityIndex]);
+        updateValues();
+      }
+    });
+
+    add(cityPanel);
+  }
+
+  private void renderForecastPanel() {
+    hForecastPanel.setLayout(null);
+    hForecastPanel.setBounds(0, 170, 400, 200);
+    add(hForecastPanel);
   }
 
   private void updateValues() {
@@ -123,8 +134,8 @@ public class WeatherPanel extends JPanel implements ThemedPanel {
       if (weather != null) {
         hForecastPanel.setHourlyForecast(weather.hourlyForecast());
 
-        JLabel[] labels = {lblTemperature, lblHigh, lblLow, lblStatus, lblFeelsLike, lblCity};
-        Object[] values = {weather.temp(), weather.highLow().high(), weather.highLow().low(), weather.status(), weather.feelsLike(), weather.city()};
+        JLabel[] labels = {lblCity, lblTemperature, lblHigh, lblLow, lblStatus, lblFeelsLike};
+        Object[] values = {weather.city(), weather.temp(), weather.highLow().high(), weather.highLow().low(), weather.status(), weather.feelsLike()};
 
         for (int i = 0; i < labels.length; i++) {
           JLabel label = labels[i];
@@ -150,16 +161,19 @@ public class WeatherPanel extends JPanel implements ThemedPanel {
   }
 
   public void setTheme(boolean isDarkMode) {
-    Color foreground = isDarkMode ? Constants.COLOR_LIGHT_GRAY_65 : Constants.COLOR_DARK_GRAY_65;
+    Color foreground65 = isDarkMode ? Constants.COLOR_LIGHT_GRAY_65 : Constants.COLOR_DARK_GRAY_65;
+    Color foreground80 = isDarkMode ? Constants.COLOR_LIGHT_GRAY_80 : Constants.COLOR_DARK_GRAY_80;
     Color background = isDarkMode ? Color.BLACK : Color.WHITE;
 
-    Component[] backgroundComponents = {this, tempHighLowPanel};
-    Component[] foregroundComponents = {lblTemperature, lblHigh, lblLow, lblStatus, lblFeelsLike, lblCity};
+    Component[] backgroundComponents = {this, tempHighLowPanel, statusFeelsPanel, cityPanel};
+    Component[] foreground65Components = {lblHigh, lblLow, lblCity, lblFeelsLike};
+    Component[] foreground80Components = {lblTemperature, lblStatus};
     ThemedPanel[] themedComponents = {hForecastPanel};
 
-    for (Component comp : backgroundComponents) comp.setBackground(background);
-    for (Component comp : foregroundComponents) comp.setForeground(foreground);
-    for (ThemedPanel comp : themedComponents) comp.setTheme(isDarkMode);
+    for (Component c : backgroundComponents) c.setBackground(background);
+    for (Component c : foreground65Components) c.setForeground(foreground65);
+    for (Component c : foreground80Components) c.setForeground(foreground80);
+    for (ThemedPanel p : themedComponents) p.setTheme(isDarkMode);
 
     revalidate();
     repaint();
@@ -169,17 +183,28 @@ public class WeatherPanel extends JPanel implements ThemedPanel {
 class HForecastPanel extends JPanel implements ThemedPanel {
 
   // List<Component> backgroundComponents = new ArrayList<>(Arrays.asList(this, hourlyForecastPanel1, hourlyForecastPanel2));
-  private final List<JPanel> hfPanels = new ArrayList<>(Arrays.asList(new JPanel(), new JPanel(), new JPanel(), new JPanel()));
-  private final List<JLabel> titleLabels = new ArrayList<>(Arrays.asList(new JLabel(), new JLabel(), new JLabel(), new JLabel()));
-  private final List<JLabel> tempLabels = new ArrayList<>(Arrays.asList(new JLabel(), new JLabel(), new JLabel(), new JLabel()));
-  private final List<JLabel> feelsLabels = new ArrayList<>(Arrays.asList(new JLabel(), new JLabel(), new JLabel(), new JLabel()));
+//  private final List<JPanel> hfPanels;
+//  private final List<JLabel> titleLabels;
+//  private final List<JLabel> tempLabels;
+//  private final List<JLabel> feelsLabels;
+  private final JPanel[] hfPanels = new JPanel[4];
+  private final JLabel[] titleLabels = new JLabel[4];
+  private final JLabel[] tempLabels = new JLabel[4];
+  private final JLabel[] feelsLabels = new JLabel[4];
 
-  public HForecastPanel() {}
+  public HForecastPanel() {
+    Arrays.setAll(hfPanels, i -> new JPanel());
+    Arrays.setAll(titleLabels, i -> new JLabel());
+    Arrays.setAll(tempLabels, i -> new JLabel());
+    Arrays.setAll(feelsLabels, i -> new JLabel());
+  }
+
+  public static <T> List<T> initList(int size, Supplier<T> supplier) {
+    return IntStream.range(0, size).mapToObj(_ -> supplier.get()).collect(Collectors.toList());
+  }
 
   public void setHourlyForecast(HourlyForecastModel hourlyForecast) {
     if (hourlyForecast == null) return;
-
-    //removeAllComponents();
 
     for (int i = 0; i < hourlyForecast.items().size() - 1; i++) {
       HourlyForecastItem item = hourlyForecast.items().get(i);
@@ -187,13 +212,8 @@ class HForecastPanel extends JPanel implements ThemedPanel {
       panel.setLayout(new GridBagLayout());
       GridBagConstraints gbc = new GridBagConstraints();
 
-      //hfPanels.add(panel, i);
-      // panel.setBackground(isDarkMode ? Color.BLACK : Color.WHITE);
-
       JLabel lblTitle = titleLabels.get(i);
       lblTitle.setText(item.title());
-      //JLabel lblTitle = new JLabel(item.title());
-      //lblTitle.setForeground(isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY);
       lblTitle.setFont(Constants.FONT_DEFAULT_20);
       lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
       lblTitle.setVerticalAlignment(SwingConstants.TOP);
@@ -204,9 +224,8 @@ class HForecastPanel extends JPanel implements ThemedPanel {
       panel.add(lblTitle, gbc);
 
       JLabel lblTemp = tempLabels.get(i);
+      //JLabel lblTemp = new JLabel();
       lblTemp.setText(item.temp() + "°C");
-      //JLabel lblTemp = new JLabel(item.temp() + "°C");
-      // lblTemp.setForeground(isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY);
       lblTemp.setFont(Constants.FONT_DEFAULT_30);
       lblTemp.setHorizontalAlignment(SwingConstants.CENTER);
       lblTemp.setVerticalAlignment(SwingConstants.TOP);
@@ -215,8 +234,6 @@ class HForecastPanel extends JPanel implements ThemedPanel {
 
       JLabel lblFeels = feelsLabels.get(i);
       lblFeels.setText("Feels: " + item.feels() + "°C");
-      // JLabel lblFeels = new JLabel("Feels: " + item.feels() + "°C");
-      // lblFeels.setForeground(isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY);
       lblFeels.setFont(Constants.FONT_DEFAULT_15);
       lblFeels.setHorizontalAlignment(SwingConstants.CENTER);
       lblFeels.setVerticalAlignment(SwingConstants.TOP);
@@ -226,17 +243,14 @@ class HForecastPanel extends JPanel implements ThemedPanel {
       panel.setBounds(100 * i, 0, 100, this.getBounds().height);
       add(panel);
     }
-  }
 
-  private void removeAllComponents() {
-    removeAll();
-    revalidate();
-    repaint();
+    this.revalidate();
+    this.repaint();
   }
 
   @Override
   public void setTheme(boolean isDarkMode) {
-    Color background = isDarkMode ? Color.BLACK : Color.WHITE;
+    Color background = !isDarkMode ? Color.BLACK : Color.WHITE;
 
     Component[] backgroundComponents1 = {this};
     for (Component comp : backgroundComponents1) comp.setBackground(background);
