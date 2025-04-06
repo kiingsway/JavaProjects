@@ -1,4 +1,4 @@
-package org.example.view.components;
+package org.example.view.components.system;
 
 import org.example.Constants;
 

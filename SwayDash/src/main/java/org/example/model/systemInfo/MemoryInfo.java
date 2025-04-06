@@ -13,6 +13,7 @@ public record MemoryInfo(
   }
 
   public String percentageFree() {
-    return String.format("%.1f", (free / total) * 100) + "%";
+    float freeSpace = (free / total) * 100;
+    return freeSpace >= 100 ? "100%" : String.format("%.1f", freeSpace) + "%";
   }
 }

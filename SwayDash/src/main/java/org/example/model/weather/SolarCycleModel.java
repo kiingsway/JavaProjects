@@ -3,7 +3,7 @@ package org.example.model.weather;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public record SunsetSunriseModel(
+public record SolarCycleModel(
         Date sunrise,
         Date sunset
 ) {

@@ -1,6 +1,6 @@
 package org.example.model.weather;
 
-public record HighLowWeatherModel(
+public record TemperatureRangeModel(
         Integer high,
         Integer low
 ) {

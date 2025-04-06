@@ -12,13 +12,11 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static org.example.Constants.*;
 
@@ -29,22 +27,18 @@ public class WeatherAPI {
   public static final String TOCA_WEATHER = "ca/ontario/toronto";
   public static final String SPBR_WEATHER = "br/sao-paulo/sao-paulo";
   public static final String NUGL_WEATHER = "gl/sermersooq/nuuk";
+  public static final String NORU_WEATHER = "ru/krasnoyarskiy/norilsk";
 
   private static final SimpleDateFormat MDY_FORMAT = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH);
   private static final SimpleDateFormat YMD_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
   private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd h:mma", Locale.ENGLISH);
 
-  private String uri;
-  private String city;
-  private String status;
-  private Integer temp;
-  private HighLowWeatherModel highLow = new HighLowWeatherModel(null, null);
-  private Integer feelsLike;
-  private HourlyForecastModel hourlyForecast;
-  private SunsetSunriseModel sunsetSunrise;
+  private final WeatherModel weather = new WeatherModel();
+
+  private Runnable onCityUpdate;
 
   public WeatherAPI(String cityUri) {
-    this.uri = cityUri;
+    weather.setUri(cityUri);
 
     updateValues();
     Timer timer = new Timer(15000, _ -> updateValues());
@@ -55,7 +49,9 @@ public class WeatherAPI {
     new Thread(() -> {
       try {
         useJsoup();
+        if (onCityUpdate != null) SwingUtilities.invokeLater(onCityUpdate);
         //useSelenium();
+        // if (onCityUpdate != null) SwingUtilities.invokeLater(onCityUpdate);
       } catch (Exception e) {
         e.printStackTrace();
         SHOW_ERROR_DIALOG(null, e);
@@ -66,12 +62,12 @@ public class WeatherAPI {
   private void useJsoup() {
     try {
       Document doc = Jsoup.connect(url()).get();
-      this.city = getStringOfComponent(doc, "location-label");
-      this.status = getStringOfComponent(doc, "weather-text");
-      this.temp = getNumberOfComponent(doc, "temperature-text");
-      this.highLow = getHighLow(doc);
-      this.feelsLike = getNumberOfComponent(doc, "feels-like");
-      this.hourlyForecast = getHourlyForecast(doc);
+      weather.setCity(getStringOfComponent(doc, "location-label"));
+      weather.setStatus(getStringOfComponent(doc, "weather-text"));
+      weather.setTemperature(getNumberOfComponent(doc, "temperature-text"));
+      weather.setTemperatureRange(getTemperatureRange(doc));
+      weather.setFeelsLike(getNumberOfComponent(doc, "feels-like"));
+      weather.setHourlyForecast(getHourlyForecast(doc));
     } catch (NullPointerException | IOException e) {
       SHOW_ERROR_DIALOG(null, e);
     }
@@ -83,13 +79,13 @@ public class WeatherAPI {
 
     WebDriver driver = new ChromeDriver(options);
     try {
+      Constants.PRINT("driver.get(url());", true);
       driver.get(url());
 
-      // Esperar que o elemento de sunset/sunrise esteja presente na página
-      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
-      wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[data-testid=detailed-obs-tile]")));
-
-      sunsetSunrise = getSunsetSunrise(driver);
+      Constants.PRINT("starting updateDailyForecast...", true);
+      updateDailyForecast(driver);
+      Constants.PRINT("starting updateSolarCycle...", true);
+      updateSolarCycle(driver);
     } finally {
       driver.quit();
     }
@@ -108,24 +104,57 @@ public class WeatherAPI {
     return STRING_TO_INTEGER(element.text());
   }
 
-  private static HighLowWeatherModel getHighLow(Document doc) {
-    Element elemHighLow = doc.selectFirst("[data-testid=high-low]");
+  private static TemperatureRangeModel getTemperatureRange(Document doc) {
+    Element elmTempRange = doc.selectFirst("[data-testid=high-low]");
 
-    if (elemHighLow == null) return null;
-    String[] numbers = elemHighLow.text().replaceAll("[^0-9\\- ]", "").trim().split("\\s+");
+    if (elmTempRange == null) return null;
+    String[] numbers = elmTempRange.text().replaceAll("[^0-9\\- ]", "").trim().split("\\s+");
     if (numbers.length < 2) return null;
 
     try {
       Integer high = STRING_TO_INTEGER(numbers[0]);
       Integer low = STRING_TO_INTEGER(numbers[1]);
-      return new HighLowWeatherModel(high, low);
+      return new TemperatureRangeModel(high, low);
     } catch (NumberFormatException e) {
       return null;
     }
   }
 
-  private static SunsetSunriseModel getSunsetSunrise(WebDriver driver) {
+  private static ForecastModel getHourlyForecast(Document doc) {
+    List<ForecastItem> items = new ArrayList<>();
+
+    Element element = doc.selectFirst("[aria-labelledby=hourly-widget-link] > div");
+    if (element == null || element.children().isEmpty()) return null;
+
+    for (Element hourlyItems : element.children()) {
+      Elements elHourly = hourlyItems.children();
+      String title = elHourly.getFirst().text().trim();
+      String imgUrl = elHourly.get(1).children().getFirst().attr("src");
+      Integer temp = STRING_TO_INTEGER(elHourly.get(2).text());
+      Integer feels = STRING_TO_INTEGER(elHourly.get(3).text());
+      String pop = elHourly.get(4).text().trim();
+
+      Element elmPrecipitation = element.selectFirst("[data-testid=period-precip-container] > div");
+      String rain = null, snow = null;
+
+      if (elmPrecipitation != null) {
+        Elements elmPrecipitationChildren = elmPrecipitation.children();
+        if (!elmPrecipitationChildren.isEmpty()) rain = elmPrecipitationChildren.getFirst().text().trim();
+        if (elmPrecipitationChildren.size() > 1) snow = elmPrecipitationChildren.get(1).text().trim();
+      }
+
+      ForecastItem item = new ForecastItem(title, imgUrl, temp, feels, pop, rain, snow, null);
+      items.add(item);
+    }
+
+    return new ForecastModel(items);
+  }
+
+  private void updateSolarCycle(WebDriver driver) {
     try {
+      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+      wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[data-testid=detailed-obs-tile]")));
+
       WebElement element = driver.findElement(By.cssSelector("[data-testid=detailed-obs-tile]"));
       String info = element.getText();
       String dateText = info.split("\n")[0].replace("Sunset/Sunrise Info:", "").trim();
@@ -140,68 +169,96 @@ public class WeatherAPI {
       Date sunrise = DATETIME_FORMAT.parse(sunriseDateString);
       Date sunset = DATETIME_FORMAT.parse(sunsetDateString);
 
-      // Retornar um objeto SunsetSunriseModel com as datas
-      return new SunsetSunriseModel(sunrise, sunset);
+      weather.setSolarCycle(new SolarCycleModel(sunrise, sunset));
 
     } catch (Exception e) {
       e.printStackTrace();
-      return null; // Caso algo dê errado
     }
   }
 
-  private static HourlyForecastModel getHourlyForecast(Document doc) {
-    List<HourlyForecastItem> items = new ArrayList<>();
-    Element element = doc.selectFirst("[aria-labelledby=hourly-widget-link] > div");
-    if (element == null) return null;
+  private void updateDailyForecast(WebDriver driver) {
+    List<ForecastItem> items = new ArrayList<>();
+    try {
+      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+      wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[aria-labelledby='fourteen-days-widget-link']")));
 
-    if (element.children().isEmpty()) return null;
-    for (Element hourlyItems : element.children()) {
-      Elements elHourly = hourlyItems.children();
-      String title = elHourly.getFirst().text().trim();
-      String imgUrl = elHourly.get(1).children().getFirst().attr("src");
-      Integer temp = STRING_TO_INTEGER(elHourly.get(2).text());
-      Integer feels = STRING_TO_INTEGER(elHourly.get(3).text());
-      String prep = elHourly.get(4).text().trim();
-      HourlyForecastItem item = new HourlyForecastItem(title, imgUrl, temp, feels, prep);
-      items.add(item);
+      WebElement elements = driver.findElement(By.cssSelector("[aria-labelledby='fourteen-days-widget-link'] > div"));
+
+      List<WebElement> elementsChildren = elements.findElements(By.xpath("./*"));
+
+      for (WebElement elm : elementsChildren) {
+        String title = elm.findElement(By.cssSelector("[data-testid='14day-day-label']")).getText();
+        String imgUrl = elm.findElement(By.cssSelector("[data-testid='period-weather-icon'] > img")).getAttribute("src");
+
+        String temperatureText = elm.findElement(By.cssSelector("[data-testid='period-temperature']")).getText();
+        Integer temp = Optional.of(temperatureText).map(Constants::STRING_TO_INTEGER).orElse(null);
+
+        String pop = elm.findElement(By.cssSelector("[data-testid='period-pop-value']")).getText();
+        String precipitation = elm.findElement(By.cssSelector("[data-testid='period-precip-container']")).getText();
+
+        String nightText = elm.findElement(By.cssSelector("[data-testid='period-post-temp-label']")).getText();
+        Integer night = Optional.of(nightText).map(Constants::STRING_TO_INTEGER).orElse(null);
+
+        ForecastItem item = new ForecastItem(title, imgUrl, temp, null, pop, precipitation, null, night);
+        Constants.PRINT("item: " + item, true);
+        items.add(item);
+      }
+
+      weather.setDailyForecast(new ForecastModel(items));
+
+    } catch (Exception e) {
+      Constants.PRINT("Error: " + e.getMessage());
+      //e.printStackTrace();
     }
-
-    return new HourlyForecastModel(items);
   }
 
-  public void setCity(String cityUri) {
-    this.uri = cityUri;
+  private static ForecastModel getDailyForecast(Document doc) {
+    List<ForecastItem> items = new ArrayList<>();
+
+    Element element = doc.selectFirst("#fourteen-days-widget-link > div > div");
+    if (element == null || element.children().isEmpty()) return null;
+    for (Element dailyDivs : element.children()) {
+      Elements elements = dailyDivs.children();
+    }
+
+    return new ForecastModel(items);
+  }
+
+  public void setCity(String cityUri, Runnable onCityUpdate) {
+    this.onCityUpdate = onCityUpdate;
+    weather.setUri(cityUri);
     updateValues();
   }
 
-  public String city() {return city;}
+  public String city() {return weather.city();}
 
-  public String url() {return "https://www.theweathernetwork.com/en/city/" + uri + "/current";}
+  public String url() {return weather.url();}
 
-  public String status() {return status;}
+  public String status() {return weather.status();}
 
-  public Integer temp() {return temp;}
+  public Integer temperature() {return weather.temperature();}
 
-  public HighLowWeatherModel highLow() {return highLow;}
+  public TemperatureRangeModel tempRange() {return weather.temperatureRange();}
 
-  public Integer feelsLike() {return feelsLike;}
+  public Integer feelsLike() {return weather.feelsLike();}
 
-  public HourlyForecastModel hourlyForecast() {return hourlyForecast;}
+  public ForecastModel hourlyForecast() {return weather.hourlyForecast();}
 
-  public SunsetSunriseModel sunsetSunrise() {return sunsetSunrise;}
+  public ForecastModel dailyForecast() {return weather.dailyForecast();}
+
+  public SolarCycleModel sunsetSunrise() {return weather.solarCycle();}
 
   @Override
   public String toString() {
     return "WeatherAPI {" +  //
             "\n  url='" + url() + '\'' +  //
-            ",\n  city='" + city + '\'' +  //
-            ",\n  status='" + status + '\'' +  //
-            ",\n  temp=" + temp + "°C" +  //
-            ",\n  highLow=" + highLow +  //
-            ",\n  feelsLike=" + feelsLike + "°C" +  //
-            ",\n  hourlyForecast=" + hourlyForecast +  //
-            ",\n  sunsetSunrise=" + sunsetSunrise +  //
+            ",\n  city='" + city() + '\'' +  //
+            ",\n  status='" + status() + '\'' +  //
+            ",\n  temperature=" + temperature() + "°C" +  //
+            ",\n  highLow=" + tempRange() +  //
+            ",\n  feelsLike=" + feelsLike() + "°C" +  //
+            ",\n  hourlyForecast=" + hourlyForecast() +  //
+            ",\n  sunsetSunrise=" + sunsetSunrise() +  //
             "\n}";  //
   }
-
 }

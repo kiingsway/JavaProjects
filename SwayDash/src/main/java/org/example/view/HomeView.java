@@ -2,6 +2,9 @@ package org.example.view;
 
 import org.example.Constants;
 import org.example.view.components.*;
+import org.example.view.components.log.AppLogPanel;
+import org.example.view.components.system.SystemInfoPanel;
+import org.example.view.components.weather.WeatherPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,7 +53,7 @@ public class HomeView extends JFrame {
     clockPanel.setBounds(50, 50, 350, 115);
     add(clockPanel);
 
-    weatherPanel.setBounds(50, 250, 400, 400);
+    weatherPanel.setBounds(50, 200, 400, 400);
     add(weatherPanel);
 
     appLogPanel.setBounds(w - 450, 50, 400, 300);

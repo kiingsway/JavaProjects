@@ -2,14 +2,14 @@ package org.example.model.weather;
 
 import java.util.List;
 
-public record HourlyForecastModel(
-        List<HourlyForecastItem> items
+public record ForecastModel(
+        List<ForecastItem> items
 ) {
   @Override
   public String toString() {
-    return "HourlyForecastModel {\n  items=" + //
+    return "ForecastModel {\n  items=" + //
             (items != null && !items.isEmpty() ? items.stream() //
-                    .map(HourlyForecastItem::toString) //
+                    .map(ForecastItem::toString) //
                     .reduce((a, b) -> a + ",\n  " + b) //
                     .orElse("[]") //
                     : "[]") + //

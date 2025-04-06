@@ -7,6 +7,8 @@ import oshi.software.os.OSFileStore;
 
 public class SystemInfo {
 
+  private static final float BYTE_TO_GB = 1024.0f * 1024 * 1024;
+
   private final oshi.SystemInfo systemInfo = new oshi.SystemInfo();
   private final HardwareAbstractionLayer hal = systemInfo.getHardware();
 
@@ -41,16 +43,16 @@ public class SystemInfo {
 
     for (OSFileStore store : fs.getFileStores()) {
       if (store.getMount().equals(partition + ":\\")) {
-        total = store.getTotalSpace() / (1024.0f * 1024 * 1024);
-        free = store.getUsableSpace() / (1024.0f * 1024 * 1024);
+        total = store.getTotalSpace() / BYTE_TO_GB;
+        free = store.getUsableSpace() / BYTE_TO_GB;
       }
     }
     return new MemoryInfo(free, total);
   }
 
   public MemoryInfo getRAMInfo() {
-    float free = hal.getMemory().getAvailable() / (1024.0f * 1024 * 1024);
-    float total = hal.getMemory().getTotal() / (1024.0f * 1024 * 1024);
+    float free = hal.getMemory().getAvailable() / BYTE_TO_GB;
+    float total = hal.getMemory().getTotal() / BYTE_TO_GB;
 
     return new MemoryInfo(free, total);
   }

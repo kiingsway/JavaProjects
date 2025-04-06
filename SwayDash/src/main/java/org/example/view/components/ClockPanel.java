@@ -40,7 +40,6 @@ public class ClockPanel extends JPanel implements ThemedPanel {
 
   private void updateValues() {
     try {
-      //if (error != null) setError(null);
       Date now = new Date(System.currentTimeMillis());
 
       String weekFR = WEEK_FORMAT_FR.format(now);
@@ -48,7 +47,11 @@ public class ClockPanel extends JPanel implements ThemedPanel {
       String fullDate = DATE_FORMAT_FR.format(now);
 
       lblClock.setText(CLOCK_FORMAT.format(now));
-      lblDate.setText(String.format("%s (%s), %s", weekFR, weekBR, fullDate));
+
+      String date = String.format("%s (%s), %s", weekFR, weekBR, fullDate);
+      if (weekBR.equals("dom") || weekBR.equals("sab")) date = String.format("%s, %s", weekFR, fullDate);
+
+      lblDate.setText(date);
 
       //throw new Exception("Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate));
     } catch (Exception e) {
