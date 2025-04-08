@@ -11,7 +11,7 @@ public class WeatherModel {
   private Integer feelsLike;
   private ForecastModel hourlyForecast;
   private ForecastModel dailyForecast;
-  private SolarCycleModel solarCycle;
+  private SunlightTimeModel sunlightTime;
 
   public WeatherModel() {
     this.uri = null;
@@ -19,14 +19,14 @@ public class WeatherModel {
     this.city = null;
     this.status = null;
     this.temperature = null;
-    this.temperatureRange = null;
+    this.temperatureRange = new TemperatureRangeModel(null, null);
     this.feelsLike = null;
     this.hourlyForecast = null;
     this.dailyForecast = null;
-    this.solarCycle = null;
+    this.sunlightTime = null;
   }
 
-  public WeatherModel(String uri, String city, String status, Integer temperature, TemperatureRangeModel temperatureRange, Integer feelsLike, ForecastModel hourlyForecast, ForecastModel dailyForecast, SolarCycleModel solarCycle) {
+  public WeatherModel(String uri, String city, String status, Integer temperature, TemperatureRangeModel temperatureRange, Integer feelsLike, ForecastModel hourlyForecast, ForecastModel dailyForecast, SunlightTimeModel sunlightTime) {
     this.uri = uri;
     this.url = "https://www.theweathernetwork.com/en/city/" + uri + "/current";
     this.city = city;
@@ -36,7 +36,7 @@ public class WeatherModel {
     this.feelsLike = feelsLike;
     this.hourlyForecast = hourlyForecast;
     this.dailyForecast = dailyForecast;
-    this.solarCycle = solarCycle;
+    this.sunlightTime = sunlightTime;
   }
 
   public void setUri(String uri) {
@@ -74,9 +74,9 @@ public class WeatherModel {
 
   public void setDailyForecast(ForecastModel forecast) {this.dailyForecast = forecast;}
 
-  public SolarCycleModel solarCycle() {return solarCycle;}
+  public SunlightTimeModel sunlightTime() {return sunlightTime;}
 
-  public void setSolarCycle(SolarCycleModel solarCycle) {this.solarCycle = solarCycle;}
+  public void setSunlightTime(SunlightTimeModel sunlightTime) {this.sunlightTime = sunlightTime;}
 
   @Override
   public String toString() {
@@ -87,7 +87,7 @@ public class WeatherModel {
             "  temperature=" + temperature + "°C,\n" + //
             "  feelsLike=" + feelsLike + "°C,\n" + //
             "  tempRange=" + temperatureRange + ",\n" + //
-            "  sunsetSunrise=" + solarCycle + ",\n" + //
+            "  sunsetSunrise=" + sunlightTime + ",\n" + //
             "  hourlyForecast=" + hourlyForecast + ",\n" + //
             "  dailyForecast=" + dailyForecast + "\n" + //
             '}';

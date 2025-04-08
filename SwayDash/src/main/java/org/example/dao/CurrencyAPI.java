@@ -1,5 +1,7 @@
 package org.example.dao;
 
+import org.example.model.log.LogItem;
+import org.example.model.log.LogItemLevel;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -8,6 +10,7 @@ import javax.swing.*;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static org.example.Constants.*;
 
@@ -19,8 +22,11 @@ public class CurrencyAPI {
   private static final String CADBRL_URL = "https://wise.com/us/currency-converter/cad-to-brl-rate";
   private static final String USDBRL_URL = "https://wise.com/us/currency-converter/usd-to-brl-rate";
   private static final String USDCAD_URL = "https://wise.com/us/currency-converter/usd-to-cad-rate";
+  private final Consumer<LogItem> addLog;
 
-  public CurrencyAPI() {
+  public CurrencyAPI(Consumer<LogItem> addLog) {
+    this.addLog = addLog;
+
     updateValues();
     Timer timer = new Timer(15000, _ -> updateValues());
     timer.start();
@@ -31,8 +37,7 @@ public class CurrencyAPI {
       try {
         useJsoup();
       } catch (Exception e) {
-        e.printStackTrace();
-        SHOW_ERROR_DIALOG(null, e);
+        addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
       }
     }).start();
   }

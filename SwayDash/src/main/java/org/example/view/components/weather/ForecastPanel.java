@@ -1,6 +1,7 @@
 package org.example.view.components.weather;
 
 import org.example.Constants;
+import org.example.dao.WeatherAPI;
 import org.example.model.components.ThemedPanel;
 import org.example.model.weather.ForecastItem;
 import org.example.model.weather.ForecastModel;
@@ -49,14 +50,10 @@ public class ForecastPanel extends JPanel implements ThemedPanel {
     return (forecast == FORECAST_HOURLY ? "hourly" : "daily").toLowerCase();
   }
 
-  public void setHourlyForecast(ForecastModel forecast) {
-    this.hourlyForecast = forecast;
-    if (selectedForecast == FORECAST_HOURLY) renderForecast();
-  }
-
-  public void setDailyForecast(ForecastModel forecast) {
-    this.dailyForecast = forecast;
-    if (selectedForecast == FORECAST_DAILY) renderForecast();
+  public void setForecasts(WeatherAPI weather) {
+    this.hourlyForecast = weather.hourlyForecast();
+    this.dailyForecast = weather.dailyForecast();
+    renderForecast();
   }
 
   private void renderForecast() {

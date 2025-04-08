@@ -3,10 +3,21 @@ package org.example.model.weather;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public record SolarCycleModel(
+public record SunlightTimeModel(
         Date sunrise,
         Date sunset
 ) {
+
+  public String sunriseTime() {
+    SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    return timeFormat.format(sunrise);
+  }
+
+  public String sunsetTime() {
+    SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    return timeFormat.format(sunset);
+  }
+
   @Override
   public String toString() {
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");

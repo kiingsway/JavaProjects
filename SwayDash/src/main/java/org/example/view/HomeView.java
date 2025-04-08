@@ -16,11 +16,11 @@ public class HomeView extends JFrame {
   private final JButton btnAppLog = new JButton("\uD83D\uDDC2️");
   private final JButton btnClose = new JButton("❌");
 
-  private final WeatherPanel weatherPanel = new WeatherPanel(true);
   private final AppLogPanel appLogPanel;
-  private final ClockPanel clockPanel = new ClockPanel(true);
-  private final SystemInfoPanel sysInfoPanel = new SystemInfoPanel(true);
-  private final CurrencyPanel currencyPanel = new CurrencyPanel(true);
+  private final ClockPanel clockPanel;
+  private final WeatherPanel weatherPanel;
+  private final SystemInfoPanel sysInfoPanel;
+  private final CurrencyPanel currencyPanel;
 
   private final JPopupMenu contextMenu = new JPopupMenu();
 
@@ -37,7 +37,12 @@ public class HomeView extends JFrame {
     initialMonitorIndex = initialMonitorIndex >= screens.length ? screens.length - 1 : initialMonitorIndex;
     Rectangle screenBounds = screens[initialMonitorIndex].getDefaultConfiguration().getBounds();
     setBounds(screenBounds);
-    appLogPanel = new AppLogPanel(true, screenBounds);
+
+    appLogPanel = new AppLogPanel(true, screenBounds, false);
+    clockPanel = new ClockPanel(true, appLogPanel::addLog);
+    weatherPanel = new WeatherPanel(true, appLogPanel::addLog);
+    sysInfoPanel = new SystemInfoPanel(true, appLogPanel::addLog);
+    currencyPanel = new CurrencyPanel(true, appLogPanel::addLog);
 
     renderContextMenu();
     renderPanels();
@@ -47,18 +52,17 @@ public class HomeView extends JFrame {
     int w = getWidth(), h = getHeight();
     int x = w - 250, y = h - 210;
 
+    appLogPanel.setBounds(w - 450, 50, 400, 350);
+    add(appLogPanel);
+
     currencyPanel.setBounds(50, y, 250, 200);
     add(currencyPanel);
 
     clockPanel.setBounds(50, 50, 350, 115);
     add(clockPanel);
 
-    weatherPanel.setBounds(50, 200, 400, 400);
+    weatherPanel.setBounds(50, 200, 400, 300);
     add(weatherPanel);
-
-    appLogPanel.setBounds(w - 450, 50, 400, 300);
-    appLogPanel.setVisible(false);
-    add(appLogPanel);
 
     sysInfoPanel.setBounds(x, y, 250, 200);
     add(sysInfoPanel);

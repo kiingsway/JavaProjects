@@ -2,12 +2,15 @@ package org.example.view.components;
 
 import org.example.Constants;
 import org.example.model.components.ThemedPanel;
+import org.example.model.log.LogItem;
+import org.example.model.log.LogItemLevel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 public class ClockPanel extends JPanel implements ThemedPanel {
 
@@ -19,7 +22,10 @@ public class ClockPanel extends JPanel implements ThemedPanel {
   private static final JLabel lblClock = new JLabel();
   private static final JLabel lblDate = new JLabel();
 
-  public ClockPanel(boolean isDarkMode) {
+  private final Consumer<LogItem> addLog;
+
+  public ClockPanel(boolean isDarkMode, Consumer<LogItem> addLog) {
+    this.addLog = addLog;
     setTheme(isDarkMode);
 
     setLayout(null);
@@ -52,25 +58,28 @@ public class ClockPanel extends JPanel implements ThemedPanel {
       if (weekBR.equals("dom") || weekBR.equals("sab")) date = String.format("%s, %s", weekFR, fullDate);
 
       lblDate.setText(date);
-
-      //throw new Exception("Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate) + "Teste - " + String.format("%s (%s), %s", weekFR, weekBR, fullDate));
     } catch (Exception e) {
-      //setError(e);
+      this.addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
     }
   }
 
   @Override
   public void setTheme(boolean isDarkMode) {
-    Color foreground = isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
-    Color background = isDarkMode ? Color.BLACK : Color.WHITE;
+    try {
+      Color foreground = isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
+      Color background = isDarkMode ? Color.BLACK : Color.WHITE;
 
-    Component[] backgroundComponents = {this};
-    Component[] foregroundComponents = {lblClock, lblDate};
+      Component[] backgroundComponents = {this};
+      Component[] foregroundComponents = {lblClock, lblDate};
 
-    for (Component comp : backgroundComponents) comp.setBackground(background);
-    for (Component comp : foregroundComponents) comp.setForeground(foreground);
+      for (Component comp : backgroundComponents) comp.setBackground(background);
+      for (Component comp : foregroundComponents) comp.setForeground(foreground);
 
-    revalidate();
-    repaint();
+      revalidate();
+      repaint();
+
+    } catch (Exception e) {
+      this.addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
+    }
   }
 }

@@ -3,9 +3,12 @@ package org.example.view.components;
 import org.example.Constants;
 import org.example.dao.CurrencyAPI;
 import org.example.model.components.ThemedPanel;
+import org.example.model.log.LogItem;
+import org.example.model.log.LogItemLevel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.Consumer;
 
 public class CurrencyPanel extends JPanel implements ThemedPanel {
 
@@ -13,34 +16,45 @@ public class CurrencyPanel extends JPanel implements ThemedPanel {
   private static final JLabel lblUSDBRL = new JLabel("");
   private static final JLabel lblUSDCAD = new JLabel("");
 
-  private static final CurrencyAPI currencyAPI = new CurrencyAPI();
+  private static CurrencyAPI currencyAPI;
+  private final Consumer<LogItem> addLog;
 
-  public CurrencyPanel(boolean isDarkMode) {
-    setTheme(isDarkMode);
+  public CurrencyPanel(boolean isDarkMode, Consumer<LogItem> addLog) {
+    this.addLog = addLog;
+    currencyAPI = new CurrencyAPI(addLog);
+    try {
+      setTheme(isDarkMode);
 
-    setLayout(null);
+      setLayout(null);
 
-    lblCADBRL.setFont(Constants.FONT_DEFAULT);
-    lblUSDBRL.setFont(Constants.FONT_DEFAULT);
-    lblUSDCAD.setFont(Constants.FONT_DEFAULT);
+      lblCADBRL.setFont(Constants.FONT_DEFAULT);
+      lblUSDBRL.setFont(Constants.FONT_DEFAULT);
+      lblUSDCAD.setFont(Constants.FONT_DEFAULT);
 
-    lblCADBRL.setBounds(0, 0, 350, 35);
-    lblUSDBRL.setBounds(0, 35, 350, 35);
-    lblUSDCAD.setBounds(0, 70, 350, 35);
+      lblCADBRL.setBounds(0, 0, 350, 35);
+      lblUSDBRL.setBounds(0, 35, 350, 35);
+      lblUSDCAD.setBounds(0, 70, 350, 35);
 
-    add(lblCADBRL);
-    add(lblUSDBRL);
-    add(lblUSDCAD);
+      add(lblCADBRL);
+      add(lblUSDBRL);
+      add(lblUSDCAD);
 
-    updateValues();
-    Timer timer = new Timer(1000, _ -> updateValues());
-    timer.start();
+      updateValues();
+      Timer timer = new Timer(1000, _ -> updateValues());
+      timer.start();
+    } catch (Exception e) {
+      addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
+    }
   }
 
   private void updateValues() {
-    lblCADBRL.setText("(CAD) R$ " + String.format("%.2f", currencyAPI.CADBRL()));
-    lblUSDBRL.setText("(USD) R$ " + String.format("%.2f", currencyAPI.USDBRL()));
-    lblUSDCAD.setText("(USD) CAD$ " + String.format("%.2f", currencyAPI.USDCAD()));
+    try {
+      lblCADBRL.setText("(CAD) R$ " + String.format("%.2f", currencyAPI.CADBRL()));
+      lblUSDBRL.setText("(USD) R$ " + String.format("%.2f", currencyAPI.USDBRL()));
+      lblUSDCAD.setText("(USD) CAD$ " + String.format("%.2f", currencyAPI.USDCAD()));
+    } catch (Exception e) {
+      addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
+    }
   }
 
   public void setTheme(boolean isDarkMode) {
