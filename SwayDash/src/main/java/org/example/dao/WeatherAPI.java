@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.*;
 
 import javax.swing.*;
@@ -36,14 +37,19 @@ public class WeatherAPI {
   private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd h:mma", Locale.ENGLISH);
 
   private final WeatherModel weather = new WeatherModel();
+  private final Consumer<LogItem> addLog;
+
+  private WebDriver driver;
+  private final ChromeOptions options = new ChromeOptions();
 
   private Runnable onCityUpdate;
-
-  private final Consumer<LogItem> addLog;
 
   public WeatherAPI(String cityUri, Consumer<LogItem> addLog) {
     weather.setUri(cityUri);
     this.addLog = addLog;
+
+    options.addArguments("--headless");
+    driver = new ChromeDriver(options);
 
     try {
       updateValues();
@@ -52,14 +58,18 @@ public class WeatherAPI {
     } catch (Exception e) {
       addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
     }
+
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      if (driver != null) driver.quit();
+    }));
   }
 
   private void updateValues() {
     new Thread(() -> {
       useJsoup();
       if (onCityUpdate != null) SwingUtilities.invokeLater(onCityUpdate);
-      useSelenium();
-      if (onCityUpdate != null) SwingUtilities.invokeLater(onCityUpdate);
+      //useSelenium();
+      //if (onCityUpdate != null) SwingUtilities.invokeLater(onCityUpdate);
     }).start();
   }
 
@@ -78,13 +88,12 @@ public class WeatherAPI {
   }
 
   private void useSelenium() {
-    ChromeOptions options = new ChromeOptions();
-    options.addArguments("--headless");
-    WebDriver driver = new ChromeDriver(options);
+    if (((RemoteWebDriver) driver).getSessionId() == null) return;
     try {
+      driver = new ChromeDriver(options);
       driver.get(url());
-      //updateDailyForecast(driver);
-      updateSunlightTime(driver);
+      updateDailyForecast();
+      updateSunlightTime();
     } catch (Exception e) {
       addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
     } finally {
@@ -156,7 +165,7 @@ public class WeatherAPI {
     }
   }
 
-  private void updateSunlightTime(WebDriver driver) {
+  private void updateSunlightTime() {
     try {
       WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
       wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("[data-testid=detailed-obs-tile]")));
@@ -182,7 +191,7 @@ public class WeatherAPI {
     }
   }
 
-  private void updateDailyForecast(WebDriver driver) {
+  private void updateDailyForecast() {
     List<ForecastItem> items = new ArrayList<>();
     try {
       WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
@@ -206,7 +215,6 @@ public class WeatherAPI {
         Integer night = Optional.of(nightText).map(Constants::STRING_TO_INTEGER).orElse(null);
 
         ForecastItem item = new ForecastItem(title, imgUrl, temp, null, pop, precipitation, null, night);
-        Constants.PRINT("item: " + item, true);
         items.add(item);
       }
 
@@ -214,23 +222,6 @@ public class WeatherAPI {
 
     } catch (Exception e) {
       addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
-    }
-  }
-
-  private ForecastModel getDailyForecast(Document doc) {
-    try {
-      List<ForecastItem> items = new ArrayList<>();
-
-      Element element = doc.selectFirst("#fourteen-days-widget-link > div > div");
-      if (element == null || element.children().isEmpty()) return null;
-      for (Element dailyDivs : element.children()) {
-        Elements elements = dailyDivs.children();
-      }
-
-      return new ForecastModel(items);
-    } catch (Exception e) {
-      WeatherAPI.this.addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
-      return null;
     }
   }
 

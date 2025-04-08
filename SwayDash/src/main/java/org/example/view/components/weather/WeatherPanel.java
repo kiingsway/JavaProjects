@@ -140,7 +140,7 @@ public class WeatherPanel extends JPanel implements ThemedPanel {
 
             String val = value + "°C";
             if (value == null) val = "";
-            else if (label == lblStatus) val = (String) value;
+            else if (label == lblStatus) val = "" + value;
             else if (label == lblFeelsLike) val = "Feels: " + value + "°C";
 
             label.setText(val);

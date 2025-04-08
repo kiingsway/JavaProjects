@@ -1,10 +1,8 @@
 package org.example.view.components.weather;
 
 import org.example.Constants;
-import org.example.dao.WeatherAPI;
 import org.example.model.components.ThemedPanel;
 import org.example.model.weather.SunlightTimeModel;
-import org.example.model.weather.TemperatureRangeModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,7 +20,7 @@ public class SunlightTimePanel extends JPanel implements ThemedPanel {
   public SunlightTimePanel() {
     setLayout(new GridBagLayout());
 
-    renderSunlightTime();
+    //renderSunlightTime();
   }
 
   private void renderSunlightTime() {

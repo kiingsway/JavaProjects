@@ -15,7 +15,7 @@ public class ForecastPanel extends JPanel implements ThemedPanel {
 
   private static final boolean FORECAST_HOURLY = true;
   private static final boolean FORECAST_DAILY = false;
-  private final boolean selectedForecast = FORECAST_HOURLY;
+  private boolean selectedForecast = FORECAST_HOURLY;
 
   private final JPanel[] hfPanels = new JPanel[4];
   private final JLabel[] titleLabels = new JLabel[4];
@@ -38,9 +38,9 @@ public class ForecastPanel extends JPanel implements ThemedPanel {
     addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
+        selectedForecast = !selectedForecast;
         setToolTipText(String.format("Click to change to %s forecast", selectedForecast == FORECAST_HOURLY ? "daily" : "hourly"));
         Constants.PRINT(getForecastTitle(selectedForecast) + " -> " + getForecastTitle(!selectedForecast));
-        selectedForecast = !selectedForecast;
         renderForecast();
       }
     });*/

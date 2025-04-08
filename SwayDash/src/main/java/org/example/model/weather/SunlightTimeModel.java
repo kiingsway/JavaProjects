@@ -2,6 +2,7 @@ package org.example.model.weather;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 public record SunlightTimeModel(
         Date sunrise,
@@ -23,9 +24,9 @@ public record SunlightTimeModel(
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
     SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
 
-    String formattedDate = dateFormat.format(sunrise);  // Formata a data para dd/MM/yy
-    String formattedSunriseTime = timeFormat.format(sunrise);  // Formata a hora do nascer do sol
-    String formattedSunsetTime = timeFormat.format(sunset);  // Formata a hora do pôr do sol
+    String formattedDate = Optional.ofNullable(sunrise).map(dateFormat::format).orElse(null);
+    String formattedSunriseTime = Optional.ofNullable(sunrise).map(timeFormat::format).orElse(null);
+    String formattedSunsetTime = Optional.ofNullable(sunset).map(timeFormat::format).orElse(null);
 
     return String.format("(%s) %s - %s", formattedDate, formattedSunriseTime, formattedSunsetTime);
   }

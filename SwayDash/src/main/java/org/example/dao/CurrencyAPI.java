@@ -12,9 +12,6 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static org.example.Constants.*;
-
-@SuppressWarnings("CallToPrintStackTrace")
 public class CurrencyAPI {
 
   private static float CADBRL = 0, USDBRL = 0, USDCAD = 0;
@@ -33,35 +30,33 @@ public class CurrencyAPI {
   }
 
   private void updateValues() {
-    new Thread(() -> {
-      try {
-        useJsoup();
-      } catch (Exception e) {
-        addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
-      }
-    }).start();
+    new Thread(this::useJsoup).start();
   }
 
-  private void useJsoup() throws IOException {
-    String[] urls = {CADBRL_URL, USDBRL_URL, USDCAD_URL};
+  private void useJsoup() {
+    try {
+      String[] urls = {CADBRL_URL, USDBRL_URL, USDCAD_URL};
 
-    for (String url : urls) {
-      Document doc = Jsoup.connect(url).get();
-      float value = Optional.ofNullable(getFloatOfTargetInput(doc)).orElse(0.0f);
+      for (String url : urls) {
+        Document doc = Jsoup.connect(url).get();
+        float value = Optional.ofNullable(getFloatOfTargetInput(doc)).orElse(0.0f);
 
-      switch (url) {
-        case CADBRL_URL:
-          CADBRL = value;
-          break;
-        case USDBRL_URL:
-          USDBRL = value;
-          break;
-        case USDCAD_URL:
-          USDCAD = value;
-          break;
-        default:
-          throw new RuntimeException("Unknown URL: " + url);
+        switch (url) {
+          case CADBRL_URL:
+            CADBRL = value;
+            break;
+          case USDBRL_URL:
+            USDBRL = value;
+            break;
+          case USDCAD_URL:
+            USDCAD = value;
+            break;
+          default:
+            throw new RuntimeException("Unknown URL: " + url);
+        }
       }
+    } catch (Exception e) {
+      addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
     }
   }
 
