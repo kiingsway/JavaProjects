@@ -40,7 +40,7 @@ public class ClockPanel extends JPanel implements ThemedPanel {
     add(lblDate);
 
     updateValues();
-    Timer timer = new Timer(1000, _ -> updateValues());
+    Timer timer = new Timer(1000, e -> updateValues());
     timer.start();
   }
 

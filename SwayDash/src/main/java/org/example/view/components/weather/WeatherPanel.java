@@ -44,7 +44,7 @@ public class WeatherPanel extends JPanel implements ThemedPanel {
     renderPanels();
 
     updateValues();
-    Timer timer = new Timer(5000, _ -> updateValues());
+    Timer timer = new Timer(5000, e -> updateValues());
     timer.start();
   }
 

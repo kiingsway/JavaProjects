@@ -13,7 +13,7 @@ public class SystemInfo {
   private final HardwareAbstractionLayer hal = systemInfo.getHardware();
 
   public String getBatteryRemainingTime() {
-    PowerSource battery = hal.getPowerSources().getFirst();
+    PowerSource battery = hal.getPowerSources().get(0);
     long seconds = (long) battery.getTimeRemainingInstant();
     long minutes = seconds / 60;
     long hours = minutes / 60;
@@ -22,12 +22,12 @@ public class SystemInfo {
   }
 
   public boolean isBatteryCharging() {
-    PowerSource battery = hal.getPowerSources().getFirst();
+    PowerSource battery = hal.getPowerSources().get(0);
     return !battery.isDischarging();
   }
 
   public String getBatteryPercentage() {
-    PowerSource battery = hal.getPowerSources().getFirst();
+    PowerSource battery = hal.getPowerSources().get(0);
 
     float current = battery.getCurrentCapacity();
     float max = battery.getMaxCapacity();

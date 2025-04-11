@@ -40,7 +40,7 @@ public class CurrencyPanel extends JPanel implements ThemedPanel {
       add(lblUSDCAD);
 
       updateValues();
-      Timer timer = new Timer(1000, _ -> updateValues());
+      Timer timer = new Timer(1000, e -> updateValues());
       timer.start();
     } catch (Exception e) {
       addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));

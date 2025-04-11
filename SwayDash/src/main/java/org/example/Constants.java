@@ -5,8 +5,8 @@ import javax.swing.JOptionPane;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -14,10 +14,9 @@ public class Constants {
 
   public static final String APP_TITLE = "Sway Dash";
 
-  private static final String FONTS_PATH = "src/main/resources/Rajdhani-";
-  private static final String RAJDHANI_BOLD_FILE = FONTS_PATH + "Bold.ttf";
-  private static final String RAJDHANI_MEDIUM_FILE = FONTS_PATH + "Medium.ttf";
-
+  private static final String RAJDHANI_BOLD_FILE = "Rajdhani-Bold.ttf";
+  private static final String RAJDHANI_MEDIUM_FILE = "Rajdhani-Medium.ttf";
+  
   public static final Font FONT_DEFAULT_30 = loadFont(RAJDHANI_MEDIUM_FILE, 30f);
   public static final Font FONT_DEFAULT_20 = loadFont(RAJDHANI_MEDIUM_FILE, 20f);
   public static final Font FONT_DEFAULT_15 = loadFont(RAJDHANI_MEDIUM_FILE, 15f);
@@ -41,8 +40,14 @@ public class Constants {
 
   private static Font loadFont(String path, float size) {
     try {
-      File fontFile = new File(path);
-      Font font = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(size);
+      // Usando getResourceAsStream para carregar o arquivo de fontes do JAR
+      InputStream fontStream = Constants.class.getClassLoader().getResourceAsStream(path);
+
+      if (fontStream == null) {
+        throw new IOException("Fonte não encontrada: " + path);
+      }
+
+      Font font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(size);
       GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
       return font;
     } catch (IOException | FontFormatException e) {
@@ -50,6 +55,7 @@ public class Constants {
       return new Font("Arial", Font.PLAIN, (int) size); // Fallback para Arial
     }
   }
+
 
   public static int CLAMP(int val, int min, int max) {
     return Math.max(min, Math.min(val, max));
@@ -82,7 +88,7 @@ public class Constants {
 
     try {
       clipboard.setContents(stringSelection, null);
-    } catch (Exception _) {}
+    } catch (Exception e) {}
   }
 
   public static void SHOW_ERROR_DIALOG(Component view, Exception e) {

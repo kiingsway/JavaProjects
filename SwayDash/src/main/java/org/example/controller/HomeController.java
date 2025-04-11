@@ -8,6 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class HomeController {
 
@@ -19,15 +21,24 @@ public class HomeController {
     this.view = view;
     this.monitorIndex = monitorIndex;
 
+    PowerManager.preventSleep();
+
+    view.addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        closeApp();
+      }
+    });
+
     handleListeners();
     setTheme(isDarkMode);
   }
 
   private void handleListeners() {
-    view.btnTheme().addActionListener(_ -> setTheme(!isDarkMode));
-    view.btnChangeMonitor().addActionListener(_ -> changeMonitor());
-    view.btnAppLog().addActionListener(_ -> toggleAppLog());
-    view.btnClose().addActionListener(_ -> closeApp());
+    view.btnTheme().addActionListener(e -> setTheme(!isDarkMode));
+    view.btnChangeMonitor().addActionListener(e -> changeMonitor());
+    view.btnAppLog().addActionListener(e -> toggleAppLog());
+    view.btnCloseApp().addActionListener(e -> closeApp());
 
     view.addMouseListener(new MouseAdapter() {
       @Override
@@ -52,8 +63,8 @@ public class HomeController {
     Color foreground = isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
     Color background = isDarkMode ? Color.BLACK : Color.WHITE;
 
-    Component[] backgroundComponents = {view.btnAppLog(), view.btnClose(), view.btnChangeMonitor(), view.btnTheme(), view.getContentPane()};
-    Component[] foregroundComponents = {view.btnAppLog(), view.btnClose(), view.btnChangeMonitor(), view.btnTheme()};
+    Component[] backgroundComponents = {view.btnAppLog(), view.btnCloseApp(), view.btnChangeMonitor(), view.btnTheme(), view.getContentPane()};
+    Component[] foregroundComponents = {view.btnAppLog(), view.btnCloseApp(), view.btnChangeMonitor(), view.btnTheme()};
     ThemedPanel[] themedComponents = {view.weatherPanel(), view.clockPanel(), view.sysInfoPanel(), view.currencyPanel(), view.appLogPanel()};
 
     for (Component c : backgroundComponents) c.setBackground(background);
@@ -101,6 +112,7 @@ public class HomeController {
     String msg = "Are you sure you want to exit?";
     int resp = JOptionPane.showConfirmDialog(view, msg, tit, JOptionPane.YES_NO_OPTION);
     if (resp == JOptionPane.YES_OPTION) {
+      PowerManager.allowSleep();
       view.dispose();
       System.exit(0);
     }

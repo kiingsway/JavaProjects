@@ -25,21 +25,9 @@ public class WeatherModel {
     this.sunlightTime = null;
   }
 
-  public WeatherModel(String uri, String city, String status, Integer temperature, TemperatureRangeModel temperatureRange, Integer feelsLike, ForecastModel hourlyForecast, ForecastModel dailyForecast, SunlightTimeModel sunlightTime) {
-    setUri(uri);
-    this.city = city;
-    this.status = status;
-    this.temperature = temperature;
-    this.temperatureRange = temperatureRange;
-    this.feelsLike = feelsLike;
-    this.hourlyForecast = hourlyForecast;
-    this.dailyForecast = dailyForecast;
-    this.sunlightTime = sunlightTime;
-  }
-
   public void setUri(String uri) {
     this.uri = uri;
-    this.url = "https://www.theweathernetwork.com/en/city/" + uri + "/current";
+    this.url = uri == null ? null : "https://www.theweathernetwork.com/en/city/" + uri + "/current";
   }
 
   public String url() {return url;}

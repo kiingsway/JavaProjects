@@ -8,7 +8,6 @@ import org.jsoup.nodes.Element;
 
 import javax.swing.*;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -25,7 +24,7 @@ public class CurrencyAPI {
     this.addLog = addLog;
 
     updateValues();
-    Timer timer = new Timer(15000, _ -> updateValues());
+    Timer timer = new Timer(15000, e -> updateValues());
     timer.start();
   }
 

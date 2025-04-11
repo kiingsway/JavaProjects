@@ -15,7 +15,7 @@ public class ForecastPanel extends JPanel implements ThemedPanel {
 
   private static final boolean FORECAST_HOURLY = true;
   private static final boolean FORECAST_DAILY = false;
-  private boolean selectedForecast = FORECAST_HOURLY;
+  private final boolean selectedForecast = FORECAST_HOURLY;
 
   private final JPanel[] hfPanels = new JPanel[4];
   private final JLabel[] titleLabels = new JLabel[4];
@@ -27,10 +27,10 @@ public class ForecastPanel extends JPanel implements ThemedPanel {
 
   public ForecastPanel() {
     setLayout(null);
-    Arrays.setAll(hfPanels, _ -> new JPanel());
-    Arrays.setAll(titleLabels, _ -> new JLabel());
-    Arrays.setAll(tempLabels, _ -> new JLabel());
-    Arrays.setAll(feelsLabels, _ -> new JLabel());
+    Arrays.setAll(hfPanels, i -> new JPanel());
+    Arrays.setAll(titleLabels, i -> new JLabel());
+    Arrays.setAll(tempLabels, i -> new JLabel());
+    Arrays.setAll(feelsLabels, i -> new JLabel());
 
     /*setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     setToolTipText(String.format("Click to change to %s forecast", selectedForecast == FORECAST_HOURLY ? "daily" : "hourly"));

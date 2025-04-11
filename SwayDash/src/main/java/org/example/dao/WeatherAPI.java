@@ -11,7 +11,6 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.*;
 
 import javax.swing.*;
@@ -38,9 +37,7 @@ public class WeatherAPI {
 
   private final WeatherModel weather = new WeatherModel();
   private final Consumer<LogItem> addLog;
-
-  private WebDriver driver;
-  private final ChromeOptions options = new ChromeOptions();
+  private final WebDriver driver;
 
   private Runnable onCityUpdate;
 
@@ -48,12 +45,13 @@ public class WeatherAPI {
     weather.setUri(cityUri);
     this.addLog = addLog;
 
+    ChromeOptions options = new ChromeOptions();
     options.addArguments("--headless");
     driver = new ChromeDriver(options);
 
     try {
       updateValues();
-      Timer timer = new Timer(15000, _ -> updateValues());
+      Timer timer = new Timer(15000, e -> updateValues());
       timer.start();
     } catch (Exception e) {
       addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
@@ -67,9 +65,9 @@ public class WeatherAPI {
   private void updateValues() {
     new Thread(() -> {
       useJsoup();
-      if (onCityUpdate != null) SwingUtilities.invokeLater(onCityUpdate);
-      //useSelenium();
       //if (onCityUpdate != null) SwingUtilities.invokeLater(onCityUpdate);
+      useSelenium();
+      if (onCityUpdate != null) SwingUtilities.invokeLater(onCityUpdate);
     }).start();
   }
 
@@ -88,7 +86,7 @@ public class WeatherAPI {
   }
 
   private void useSelenium() {
-    if (((RemoteWebDriver) driver).getSessionId() == null) return;
+    /*if (((RemoteWebDriver) driver).getSessionId() == null) return;
     try {
       driver = new ChromeDriver(options);
       driver.get(url());
@@ -98,7 +96,7 @@ public class WeatherAPI {
       addLog.accept(new LogItem(LogItemLevel.ERROR, this.getClass().getSimpleName(), e));
     } finally {
       driver.quit();
-    }
+    }*/
   }
 
   private static String getStringOfComponent(Document doc, String component) {
@@ -139,8 +137,8 @@ public class WeatherAPI {
 
       for (Element hourlyItems : element.children()) {
         Elements elHourly = hourlyItems.children();
-        String title = elHourly.getFirst().text().trim();
-        String imgUrl = elHourly.get(1).children().getFirst().attr("src");
+        String title = elHourly.get(0).text().trim();
+        String imgUrl = elHourly.get(1).children().get(0).attr("src");
         Integer temp = STRING_TO_INTEGER(elHourly.get(2).text());
         Integer feels = STRING_TO_INTEGER(elHourly.get(3).text());
         String pop = elHourly.get(4).text().trim();
@@ -150,7 +148,7 @@ public class WeatherAPI {
 
         if (elmPrecipitation != null) {
           Elements elmPrecipitationChildren = elmPrecipitation.children();
-          if (!elmPrecipitationChildren.isEmpty()) rain = elmPrecipitationChildren.getFirst().text().trim();
+          if (!elmPrecipitationChildren.isEmpty()) rain = elmPrecipitationChildren.get(0).text().trim();
           if (elmPrecipitationChildren.size() > 1) snow = elmPrecipitationChildren.get(1).text().trim();
         }
 

@@ -8,10 +8,6 @@ public record MemoryInfo(
     return String.format("%.1f GB", free);
   }
 
-  public String totalGB() {
-    return String.format("%.1f GB", total);
-  }
-
   public String percentageFree() {
     float freeSpace = (free / total) * 100;
     return freeSpace >= 100 ? "100%" : String.format("%.1f", freeSpace) + "%";
