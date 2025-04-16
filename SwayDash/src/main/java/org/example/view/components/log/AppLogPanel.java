@@ -8,94 +8,99 @@ import org.example.model.components.ThemedPanel;
 
 public class AppLogPanel extends DraggablePanel implements ThemedPanel {
 
-  private final JButton btnCloseLog = new JButton("❌");
-  private final JButton btnClearLog = new JButton("(-) Clear all");
+    private final JButton btnCloseLog = new JButton("❌");
+    private final JButton btnClearLog = new JButton("(-) Clear all");
 
-  private final JPanel panelLog = new JPanel();
-  private final JScrollPane scrollPane = new JScrollPane(panelLog);
+    private final JPanel panelLog = new JPanel();
+    private final JScrollPane scrollPane = new JScrollPane(panelLog);
 
 
-  public AppLogPanel(boolean isDarkMode, Rectangle screenBounds, boolean initializeVisible) {
-    super(screenBounds);
-    setTheme(isDarkMode);
-    setBackground(Color.GRAY);
-    setLayout(null);
+    public AppLogPanel(boolean isDarkMode, Rectangle screenBounds, boolean initializeVisible) {
+        super(screenBounds);
+        setTheme(isDarkMode);
+        setBackground(Color.GRAY);
+        setLayout(null);
 
-    renderToolbar();
-    renderPanelLog();
+        renderToolbar();
+        renderPanelLog();
 
-    setVisible(initializeVisible);
-  }
-
-  private void renderToolbar() {
-    JButton[] buttons = {btnCloseLog, btnClearLog};
-
-    for (JButton button : buttons) {
-      button.setFocusPainted(false);
-      button.setBorderPainted(false);
-      button.setBackground(Color.DARK_GRAY);
+        setVisible(initializeVisible);
     }
 
-    btnCloseLog.setFont(Constants.FONT_EMOJI);
-    btnCloseLog.setBounds(400 - 55, 10, 60, 25);
-    add(btnCloseLog);
+    private void renderToolbar() {
+        JButton[] buttons = {btnCloseLog, btnClearLog};
 
-    btnClearLog.setFont(Constants.FONT_DEFAULT_15);
-    int width = btnClearLog.getPreferredSize().width;
-    btnClearLog.setBounds(400 - width - 10, 35, width + 10, 25);
-    add(btnClearLog);
-  }
+        for (JButton button : buttons) {
+            button.setFocusPainted(false);
+            button.setBorderPainted(false);
+            button.setBackground(Color.DARK_GRAY);
+        }
 
-  private void renderPanelLog() {
-    scrollPane.setBounds(0, 40 + 25, 400, 350 - 40 - 25);
-    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-    scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        btnCloseLog.setFont(Constants.FONT_EMOJI);
+        btnCloseLog.setBounds(400 - 55, 10, 60, 25);
+        add(btnCloseLog);
 
-    panelLog.setAlignmentY(Component.TOP_ALIGNMENT);
-    panelLog.setLayout(new BoxLayout(panelLog, BoxLayout.Y_AXIS));
-    panelLog.setAlignmentY(Component.TOP_ALIGNMENT);
+        btnClearLog.setFont(Constants.FONT_DEFAULT_15);
+        int width = btnClearLog.getPreferredSize().width;
+        btnClearLog.setBounds(400 - width - 10, 35, width + 10, 25);
+        add(btnClearLog);
+    }
 
-    add(scrollPane);
-  }
+    private void renderPanelLog() {
+        scrollPane.setBounds(0, 40 + 25, 400, 350 - 40 - 25);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
+        panelLog.setAlignmentY(Component.TOP_ALIGNMENT);
+        panelLog.setLayout(new BoxLayout(panelLog, BoxLayout.Y_AXIS));
+        panelLog.setAlignmentY(Component.TOP_ALIGNMENT);
 
-  public void setScreenSize(Rectangle screenBounds) {
-    setScreenBounds(screenBounds);
-    setPanelLocation(screenBounds);
-  }
+        add(scrollPane);
+    }
 
-  private void setPanelLocation(Rectangle screenBounds) {
-    int width = getWidth(), height = getHeight();
-    Point location = getLocation();
+    public void setScreenSize(Rectangle screenBounds) {
+        setScreenBounds(screenBounds);
+        setPanelLocation(screenBounds);
+    }
 
-    int x = Math.max(location.x, 0);
-    int y = Math.max(location.y, 0);
-    x = Math.min(x, screenBounds.width - width);
-    y = Math.min(y, screenBounds.height - height);
+    private void setPanelLocation(Rectangle screenBounds) {
+        int width = getWidth(), height = getHeight();
+        Point location = getLocation();
 
-    setLocation(x, y);
-  }
+        int x = Math.max(location.x, 0);
+        int y = Math.max(location.y, 0);
+        x = Math.min(x, screenBounds.width - width);
+        y = Math.min(y, screenBounds.height - height);
 
+        setLocation(x, y);
+    }
 
-  @Override
-  public void setTheme(boolean isDarkMode) {
-    Color foreground = isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
-    Color background = isDarkMode ? Color.DARK_GRAY : Color.LIGHT_GRAY;
+    @Override
+    public void setTheme(boolean isDarkMode) {
+        Color foreground = isDarkMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
+        Color background = isDarkMode ? Color.DARK_GRAY : Color.LIGHT_GRAY;
 
-    Component[] backgroundComponents = {this, btnCloseLog, btnClearLog, panelLog};
-    Component[] foregroundComponents = {btnCloseLog, btnClearLog};
+        Component[] components = {this, btnCloseLog, btnClearLog, panelLog};
 
-    for (Component comp : backgroundComponents) comp.setBackground(background);
-    for (Component comp : foregroundComponents) comp.setForeground(foreground);
+        for (Component comp : components) {
+            comp.setForeground(foreground);
+            comp.setBackground(background);
+        }
 
-    revalidate();
-    repaint();
-  }
+        revalidate();
+        repaint();
+    }
 
-  public JButton btnClearLog() {return btnClearLog;}
+    public JButton btnClearLog() {
+        return btnClearLog;
+    }
 
-  public JButton btnCloseLog() {return btnCloseLog;}
+    public JButton btnCloseLog() {
+        return btnCloseLog;
+    }
 
-  public JPanel panelLog() {return panelLog;}
+    public JPanel panelLog() {
+        return panelLog;
+    }
 
 }

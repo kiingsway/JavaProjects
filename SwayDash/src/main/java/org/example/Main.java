@@ -6,13 +6,17 @@ import org.example.view.HomeView;
 import javax.swing.*;
 
 public class Main {
-  private static final int DEFAULT_MONITOR_INDEX = 0; // 0 = Main, 1 = Other display
 
   public static void main(String[] args) {
     SwingUtilities.invokeLater(() -> {
-      HomeView frame = new HomeView(DEFAULT_MONITOR_INDEX);
-      new HomeController(frame, DEFAULT_MONITOR_INDEX);
-      frame.setVisible(true);
+
+      int monitor = Constants.DEFAULT_MONITOR_INDEX;
+      boolean darkMode = Constants.INITIAL_DARK_MODE;
+
+      HomeView view = new HomeView(monitor);
+      new HomeController(view, monitor, darkMode);
+      view.setVisible(true);
+
     });
   }
 }

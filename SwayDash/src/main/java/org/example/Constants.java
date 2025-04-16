@@ -13,6 +13,8 @@ import java.net.URISyntaxException;
 public class Constants {
 
   public static final String APP_TITLE = "Sway Dash";
+  public static final boolean INITIAL_DARK_MODE = true;
+  public static final int DEFAULT_MONITOR_INDEX = 0; // 0 = Main, 1 = Other display
 
   private static final String RAJDHANI_BOLD_FILE = "Rajdhani-Bold.ttf";
   private static final String RAJDHANI_MEDIUM_FILE = "Rajdhani-Medium.ttf";

@@ -15,113 +15,144 @@ import java.util.List;
 
 public class HomeView extends JFrame {
 
-  private final JButton btnTheme = new JButton("🎨");
-  private final JButton btnChangeMonitor = new JButton("️🖥️");
-  private final JButton btnAppLog = new JButton("\uD83D\uDDC2️");
-  private final JButton btnCloseApp = new JButton("❌");
+    private final JButton btnTheme = new JButton("🎨");
+    private final JButton btnChangeMonitor = new JButton("️🖥️");
+    private final JButton btnAppLog = new JButton("\uD83D\uDDC2️");
+    private final JButton btnAbout = new JButton("ℹ");
+    private final JButton btnCloseApp = new JButton("❌");
 
-  private final AppLogPanel appLogPanel;
-  private final ClockPanel clockPanel;
-  private final WeatherPanel weatherPanel;
-  private final SystemInfoPanel sysInfoPanel;
-  private final CurrencyPanel currencyPanel;
+    private final AppLogPanel appLogPanel;
+    private final ClockPanel clockPanel;
+    private final WeatherPanel weatherPanel;
+    private final SystemInfoPanel sysInfoPanel;
+    private final CurrencyPanel currencyPanel;
 
-  private final JPopupMenu contextMenu = new JPopupMenu();
+    private final JPopupMenu contextMenu = new JPopupMenu();
 
-  public HomeView(int initialMonitorIndex) {
-    setTitle(Constants.APP_TITLE);
-    getContentPane().setBackground(Color.BLACK);
-    setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-    setUndecorated(true);
-    setResizable(false);
-    setLayout(null);
+    public HomeView(int initialMonitorIndex) {
+        setTitle(Constants.APP_TITLE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        setUndecorated(true);
+        setResizable(false);
+        setLayout(null);
 
-    URL iconURL = Main.class.getClassLoader().getResource("icon.png");
-    if (iconURL != null) {
-      ImageIcon icon = new ImageIcon(iconURL);
-      setIconImage(icon.getImage());
-    } else {
-      System.out.println("Ícone não encontrado!");
+        URL iconURL = Main.class.getClassLoader().getResource("icon.png");
+        if (iconURL == null) System.out.println("App icon not found");
+        else {
+            ImageIcon icon = new ImageIcon(iconURL);
+            setIconImage(icon.getImage());
+        }
+
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] screens = ge.getScreenDevices();
+        initialMonitorIndex = Math.min(initialMonitorIndex, screens.length - 1);
+        Rectangle screenBounds = screens[initialMonitorIndex].getDefaultConfiguration().getBounds();
+        setBounds(screenBounds);
+
+        appLogPanel = new AppLogPanel(true, screenBounds, false);
+        AppLogController appLogController = new AppLogController(appLogPanel);
+
+        clockPanel = new ClockPanel(true, appLogController::addLog);
+        weatherPanel = new WeatherPanel(true, appLogController::addLog);
+        sysInfoPanel = new SystemInfoPanel(true, appLogController::addLog);
+        currencyPanel = new CurrencyPanel(true, appLogController::addLog);
+
+        renderContextMenu();
+        renderPanels();
     }
 
-    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    GraphicsDevice[] screens = ge.getScreenDevices();
-    //initialMonitorIndex = initialMonitorIndex >= screens.length ? screens.length - 1 : initialMonitorIndex;
-    initialMonitorIndex = Math.min(initialMonitorIndex, screens.length - 1);
-    Rectangle screenBounds = screens[initialMonitorIndex].getDefaultConfiguration().getBounds();
-    setBounds(screenBounds);
+    private void renderPanels() {
+        int w = getWidth(), h = getHeight();
+        int x = w - 250, y = h - 210;
 
-    appLogPanel = new AppLogPanel(true, screenBounds, false);
-    AppLogController appLogController = new AppLogController(appLogPanel);
+        appLogPanel.setBounds(w - 450, 50, 400, 350);
+        add(appLogPanel);
 
-    clockPanel = new ClockPanel(true, appLogController::addLog);
-    weatherPanel = new WeatherPanel(true, appLogController::addLog);
-    sysInfoPanel = new SystemInfoPanel(true, appLogController::addLog);
-    currencyPanel = new CurrencyPanel(true, appLogController::addLog);
+        currencyPanel.setBounds(50, y, 250, 200);
+        add(currencyPanel);
 
-    renderContextMenu();
-    renderPanels();
-  }
+        clockPanel.setBounds(50, 50, 350, 115);
+        add(clockPanel);
 
-  private void renderPanels() {
-    int w = getWidth(), h = getHeight();
-    int x = w - 250, y = h - 210;
+        weatherPanel.setBounds(50, 200, 400, 300);
+        add(weatherPanel);
 
-    appLogPanel.setBounds(w - 450, 50, 400, 350);
-    add(appLogPanel);
-
-    currencyPanel.setBounds(50, y, 250, 200);
-    add(currencyPanel);
-
-    clockPanel.setBounds(50, 50, 350, 115);
-    add(clockPanel);
-
-    weatherPanel.setBounds(50, 200, 400, 300);
-    add(weatherPanel);
-
-    sysInfoPanel.setBounds(x, y, 250, 200);
-    add(sysInfoPanel);
-  }
-
-  private void renderContextMenu() {
-    UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(Color.GRAY, 1));
-    UIManager.put("PopupMenu.background", new Color(0, 0, 0, 0));
-
-    //JButton[] buttons = {btnTheme, btnChangeMonitor, btnAppLog, btnCloseApp};
-    List<JButton> buttons = List.of(btnTheme, btnChangeMonitor, btnAppLog, btnCloseApp);
-
-    int width = 0, height = 0;
-    for (JButton btn : buttons) {
-      btn.setFont(Constants.FONT_ACTION);
-      btn.setFocusPainted(false);
-      btn.setBorderPainted(false);
-      btn.setSize(new Dimension(80, 80));
-
-      height += btn.getPreferredSize().height;
-      width = Math.max(width, btn.getPreferredSize().width);
-      contextMenu.add(btn);
+        sysInfoPanel.setBounds(x, y, 250, 200);
+        add(sysInfoPanel);
     }
 
-    contextMenu.setPreferredSize(new Dimension(width + 2, height + 2));
-  }
+    private void renderContextMenu() {
+        UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(Color.GRAY, 1));
+        UIManager.put("PopupMenu.background", new Color(0, 0, 0, 0));
 
-  public JButton btnTheme() {return btnTheme;}
+        JButton[] buttons = {btnTheme, btnChangeMonitor, btnAppLog, btnAbout, btnCloseApp};
 
-  public JButton btnChangeMonitor() {return btnChangeMonitor;}
+        int width = 0, height = 0;
+        for (JButton btn : buttons) {
+            btn.setFont(Constants.FONT_ACTION);
+            btn.setFocusPainted(false);
+            btn.setBorderPainted(false);
+            btn.setSize(new Dimension(80, 80));
 
-  public JButton btnAppLog() {return btnAppLog;}
+            height += btn.getPreferredSize().height;
+            width = Math.max(width, btn.getPreferredSize().width);
+            contextMenu.add(btn);
+        }
 
-  public JButton btnCloseApp() {return btnCloseApp;}
+        contextMenu.setPreferredSize(new Dimension(width + 2, height + 2));
+    }
 
-  public ClockPanel clockPanel() {return clockPanel;}
+    public JButton btnTheme() {
+        return btnTheme;
+    }
 
-  public SystemInfoPanel sysInfoPanel() {return sysInfoPanel;}
+    public JButton btnAbout() {
+        return btnAbout;
+    }
 
-  public WeatherPanel weatherPanel() {return weatherPanel;}
+    public JButton btnChangeMonitor() {
+        return btnChangeMonitor;
+    }
 
-  public CurrencyPanel currencyPanel() {return currencyPanel;}
+    public JButton btnAppLog() {
+        return btnAppLog;
+    }
 
-  public AppLogPanel appLogPanel() {return appLogPanel;}
+    public JButton btnCloseApp() {
+        return btnCloseApp;
+    }
 
-  public JPopupMenu contextMenu() {return contextMenu;}
+    public CurrencyPanel currencyPanel() {
+        return currencyPanel;
+    }
+
+    public AppLogPanel appLogPanel() {
+        return appLogPanel;
+    }
+
+    public SystemInfoPanel sysInfoPanel() {
+        return sysInfoPanel;
+    }
+
+    public JPopupMenu contextMenu() {
+        return contextMenu;
+    }
+
+    public Component[] getThemeableComponents() {
+        return new Container[]{
+                getContentPane(),
+
+                btnTheme,
+                btnChangeMonitor,
+                btnAppLog,
+                btnAbout,
+                btnCloseApp,
+
+                clockPanel,
+                weatherPanel,
+                currencyPanel,
+                appLogPanel,
+                sysInfoPanel
+        };
+    }
 }
