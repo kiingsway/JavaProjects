@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/JavaTextEditor/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/JavaTextEditor/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/KitchenApp/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/KitchenApp/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RPGTurnGame/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RPGTurnGame/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SwayDash/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SwayDash/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TimedTasks/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TimedTasks/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TodoApp/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TodoApp/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/WindFiles/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/WindFiles/src/main/resources" charset="UTF-8" />
+  </component>
+</project>
