@@ -43,6 +43,23 @@ public class Constants {
         return new JSONObject(response.toString());
     }
 
+    public static void DELETE_REQUEST(String endpoint, String token) throws Exception {
+        URL url = new URI(endpoint).toURL();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("DELETE");
+        conn.setRequestProperty("Authorization", "Bearer " + token);
+
+        int responseCode = conn.getResponseCode();
+        if (responseCode < 200 || responseCode >= 300) {
+            String msg = String.format("%s: %s", responseCode, conn.getResponseMessage());
+            throw new Exception(msg);
+        }
+
+        // Se houver conteúdo (raro em DELETE), pode ler aqui
+        conn.disconnect();
+    }
+
+
     public static void OPEN_LINK(String url)  {
         try {
             if (Desktop.isDesktopSupported()) Desktop.getDesktop().browse(new URI(url));

@@ -11,6 +11,8 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import java.awt.event.*;
+import java.lang.reflect.Executable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,59 +38,59 @@ public class HomeController {
         JTree tree = view.emailTreeView().getTree();
         tree.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseReleased(MouseEvent e) {
-
-                int row = tree.getClosestRowForLocation(e.getX(), e.getY());
-                Object selected = tree.getLastSelectedPathComponent();
-                tree.setSelectionRow(row);
-
-
-                if (selected instanceof DefaultMutableTreeNode node) {
-                    Object userObject = node.getUserObject();
-                    int level = node.getLevel();
-
-                    for (AbstractButton button : List.of(view.btnCopyText(), view.btnOpenEmail(), view.btnDeleteEmail())) {
-                        for (ActionListener al : button.getActionListeners()) button.removeActionListener(al);
-                    }
-
-                    if (level == 0) {
-                        view.btnCopyText().setEnabled(false);
-                        view.btnOpenEmail().setEnabled(false);
-                        view.btnDeleteEmail().setEnabled(false);
-                        return;
-                    }
-
-                    if (userObject instanceof TreeItem(String label, String id)) {
-
-                        String from = label.replaceFirst("^\\(\\d+\\)\\s*", "");
-
-                        view.btnCopyText().setEnabled(true);
-                        view.btnDeleteEmail().setEnabled(true);
-
-                        if (level == 1) {
-                            view.btnOpenEmail().setEnabled(false);
-
-                            view.btnCopyText().addActionListener(_ -> Constants.COPY_TO_CLIPBOARD(from));
-                            view.btnDeleteEmail().setText("Delete e-mails");
-                            return;
-                        }
-
-                        Optional<Message> foundMessage = user.messages().stream().filter(m -> m.id().equals(id)).findFirst();
-                        foundMessage.ifPresent(message -> {
-                            view.btnOpenEmail().setEnabled(true);
-
-                            view.btnOpenEmail().addActionListener(_ -> Constants.OPEN_LINK(message.webLink()));
-                            view.btnCopyText().addActionListener(_ -> Constants.COPY_TO_CLIPBOARD(message.from()));
-
-                            view.btnDeleteEmail().setText("Delete e-mail");
-                        });
-                    }
-
-                }
-            }
+            public void mouseReleased(MouseEvent e) {onTreeClicked(tree, e);}
         });
 
 
+    }
+
+    private void onTreeClicked(JTree tree, MouseEvent e) {
+        int row = tree.getClosestRowForLocation(e.getX(), e.getY());
+        Object selected = tree.getLastSelectedPathComponent();
+        tree.setSelectionRow(row);
+
+        if (selected instanceof DefaultMutableTreeNode node) {
+            Object userObject = node.getUserObject();
+            int level = node.getLevel();
+
+            for (AbstractButton button : List.of(view.btnCopyText(), view.btnOpenEmail(), view.btnDeleteEmail())) {
+                for (ActionListener al : button.getActionListeners()) button.removeActionListener(al);
+            }
+
+            if (level == 0) {
+                view.btnCopyText().setEnabled(false);
+                view.btnOpenEmail().setEnabled(false);
+                view.btnDeleteEmail().setEnabled(false);
+                return;
+            }
+
+            if (userObject instanceof TreeItem(String label, String id)) {
+
+                String from = label.replaceFirst("^\\(\\d+\\)\\s*", "");
+
+                view.btnCopyText().setEnabled(true);
+                view.btnDeleteEmail().setEnabled(true);
+
+                if (level == 1) {
+                    view.btnOpenEmail().setEnabled(false);
+
+                    view.btnCopyText().addActionListener(_ -> Constants.COPY_TO_CLIPBOARD(from));
+                    view.btnDeleteEmail().setText("Delete e-mails");
+                    return;
+                }
+
+                Optional<Message> foundMessage = user.messages().stream().filter(m -> m.id().equals(id)).findFirst();
+                foundMessage.ifPresent(message -> {
+                    view.btnOpenEmail().setEnabled(true);
+                    view.btnDeleteEmail().setText("Delete e-mail");
+
+                    view.btnOpenEmail().addActionListener(_ -> Constants.OPEN_LINK(message.webLink()));
+                    view.btnCopyText().addActionListener(_ -> Constants.COPY_TO_CLIPBOARD(message.from()));
+                    view.btnDeleteEmail().addActionListener(_ -> deleteMessages(List.of(message)));
+                });
+            }
+
+        }
     }
 
     private void handleChangeToken() {
@@ -124,13 +126,35 @@ public class HomeController {
     }
 
     private void handleLoadedMessages(boolean isFullyLoaded) {
+        view.emailTreeView().setMessages(user.messages());
+
         String status = String.format("⌛ %s total messages. Loading more...", user.messages().size());
         if (isFullyLoaded) {
             status = String.format("✅ %s total messages.", user.messages().size());
             view.menuAttMessages().setEnabled(true);
         }
-        view.emailTreeView().setMessages(user.messages());
         view.setStatusText(status);
+    }
+
+    private void deleteMessages(List<Message> messages) {
+        int response = JOptionPane.showConfirmDialog(view, "Are you sure you want to delete this message?", "Delete Messages", JOptionPane.YES_NO_OPTION);
+        if (response == JOptionPane.YES_OPTION) {
+            List<String> errors = new ArrayList<>();
+
+            messages.forEach(message -> {
+                try {
+                    user.deleteMessage(message);
+                    handleLoadedMessages(true);
+                } catch (Exception ex) {
+                    errors.add("Error deleting: \"" + message.subject() + "\": " + ex.getMessage());
+                }
+            });
+
+            if (!errors.isEmpty()) {
+                Exception error = new Exception(String.join("\n", errors));
+                Constants.SHOW_ERROR_DIALOG(view, error);
+            }
+        }
     }
 
     private void closeApp() {

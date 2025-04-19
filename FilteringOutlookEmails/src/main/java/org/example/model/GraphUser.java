@@ -111,5 +111,14 @@ public class GraphUser {
         if (!newToken.isEmpty() && !Objects.equals(this.token, newToken)) this.token = newToken;
     }
 
+    public void deleteMessage(Message msg) throws Exception {
+        try {
+            Constants.DELETE_REQUEST(graphUrl + "/me/messages/" + msg.id(), token);
+            this.messages.remove(msg);
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+
     public List<Message> messages() {return messages;}
 }

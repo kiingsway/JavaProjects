@@ -26,7 +26,6 @@ public class EmailTreeView {
         treeModel = new DefaultTreeModel(rootNode);
         tree = new JTree(treeModel);
 
-        // Add right-click mouse listener
         tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
