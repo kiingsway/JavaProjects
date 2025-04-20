@@ -10,42 +10,87 @@ import org.example.view.Home;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+
+import static org.example.Constants.DIALOG_TITLE;
 
 public class HomeController {
 
+    private final Home view;
+    private final JTree tree;
+
     private String token = "";
     private GraphUser user = null;
-    private final Home view;
 
     public HomeController(Home view) {
         this.view = view;
+        tree = view.emailTreeView().getTree();
 
+        view.menuChangeToken().addActionListener(_ -> handleChangeToken());
+        view.menuAttMessages().addActionListener(_ -> loadMessages());
+        view.menuExitApp().addActionListener(_ -> closeApp());
+        view.onUserNameClick(_ -> handleChangeToken());
         view.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 closeApp();
             }
         });
-        view.menuChangeToken().addActionListener(_ -> handleChangeToken());
-        view.menuAttMessages().addActionListener(_ -> loadMessages());
-        view.menuExitApp().addActionListener(_ -> closeApp());
-
-        JTree tree = view.emailTreeView().getTree();
         tree.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseReleased(MouseEvent e) {onTreeClicked(tree, e);}
+            public void mouseReleased(MouseEvent e) {onTreeClicked(e.getPoint());}
         });
-
-
     }
 
-    private void onTreeClicked(JTree tree, MouseEvent e) {
-        int row = tree.getClosestRowForLocation(e.getX(), e.getY());
+    private void handleChangeToken() {
+        String title = Constants.APP_TITLE + " - Handle Access Token (Microsoft Graph)";
+        String newToken = JOptionPane.showInputDialog(view, "Insert the access token", title, JOptionPane.QUESTION_MESSAGE);
+        if (newToken == null || newToken.isEmpty()) return;
+        token = newToken;
+        loadMessages();
+    }
+
+    private void loadMessages() {
+        if (token.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "No Access Token. Please enter a valid access token.");
+            return;
+        }
+        view.setUserNameText("Loading...");
+        SwingUtilities.invokeLater(() -> {
+            if (user == null) user = new GraphUser(token);
+            else user.setToken(token);
+            try {
+                Me me = user.getMe();
+                view.setUserNameText(me.name());
+                view.setUserMailText(me.mail());
+
+                user.getMessagesAsync(() -> handleLoadedMessages(false), () -> handleLoadedMessages(true), Constants.MAX_EMAILS_GET);
+            } catch (Exception e) {
+                Constants.SHOW_ERROR_DIALOG(view, e);
+                view.setUserNameText("ERROR");
+                view.setUserMailText(e.getMessage());
+            }
+        });
+    }
+
+    private void handleLoadedMessages(boolean isFullyLoaded) {
+        view.emailTreeView().setMessages(user.messages());
+
+        String status = String.format("⌛ %s total messages. Loading...", user.messages().size());
+        if (isFullyLoaded) {
+            status = String.format("✅ %s total messages", user.messages().size());
+            view.menuAttMessages().setEnabled(true);
+        }
+        view.setStatusText(status);
+    }
+
+    private void onTreeClicked(Point p) {
+        int row = tree.getClosestRowForLocation(p.x, p.y);
         Object selected = tree.getLastSelectedPathComponent();
         tree.setSelectionRow(row);
 
@@ -76,6 +121,11 @@ public class HomeController {
 
                     view.btnCopyText().addActionListener(_ -> Constants.COPY_TO_CLIPBOARD(from));
                     view.btnDeleteEmail().setText("Delete e-mails");
+
+                    List<Message> senderMessages = new ArrayList<>(user.messages().stream().filter(m -> m.from().equals(from)).toList());
+                    senderMessages.removeIf(Objects::isNull);
+
+                    view.btnDeleteEmail().addActionListener(_ -> deleteMessages(senderMessages));
                     return;
                 }
 
@@ -93,74 +143,98 @@ public class HomeController {
         }
     }
 
-    private void handleChangeToken() {
-        String title = Constants.APP_TITLE + " - Handle Access Token (Microsoft Graph)";
-        String newToken = JOptionPane.showInputDialog(view, "Insert the access token", title, JOptionPane.QUESTION_MESSAGE);
-        if (newToken.isEmpty()) return;
-        token = newToken;
-        loadMessages();
-    }
+    private void deleteMessages(List<Message> messages) {
+        String msg = String.format(
+                "Are you sure you want to delete %s message%s?",
+                messages.size() == 1 ? "this" : messages.size(),
+                messages.size() == 1 ? "" : "s"
+        );
+        int response = JOptionPane.showConfirmDialog(view, msg, DIALOG_TITLE("Delete Messages"), JOptionPane.YES_NO_OPTION);
+        if (response != JOptionPane.YES_OPTION) return;
 
-    private void loadMessages() {
-        if (token.isEmpty()) {
-            JOptionPane.showMessageDialog(view, "No Access Token. Please enter a valid access token.");
-            return;
+        final int totalThreads = 4;
+        final int totalMessages = messages.size();
+        final List<String> errors = new ArrayList<>();
+
+        JDialog progressDialog = new JDialog(view, "Deleting Messages", true);
+        JProgressBar progressBar = new JProgressBar(0, totalMessages);
+        progressBar.setStringPainted(true);
+        progressDialog.add(progressBar);
+        progressDialog.setSize(400, 80);
+        progressDialog.setLocationRelativeTo(view);
+
+        List<SwingWorker<Void, Integer>> workers = new ArrayList<>();
+
+        for (int threadIndex = 0; threadIndex < totalThreads; threadIndex++) {
+            final int currentThread = threadIndex;
+
+            SwingWorker<Void, Integer> worker = new SwingWorker<>() {
+                @Override
+                protected Void doInBackground() {
+                    for (int i = 0; i < totalMessages; i++) {
+                        if (i % totalThreads != currentThread) continue; // só pega as que são dessa thread
+                        if (isCancelled()) break;
+
+                        Message message = messages.get(i);
+                        try {
+                            user.deleteMessage(message);
+                            synchronized (user.messages()) {
+                                user.messages().removeIf(m -> m.id().equals(message.id()));
+                            }
+                            publish(1); // incrementa o progresso
+                            Thread.sleep(300); // delay entre exclusões
+                        } catch (Exception ex) {
+                            errors.add("Error deleting: \"" + message.subject() + "\": " + ex.getMessage());
+                        }
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void process(List<Integer> chunks) {
+                    int totalProgress = progressBar.getValue();
+                    for (Integer c : chunks) totalProgress += c;
+                    progressBar.setValue(totalProgress);
+                }
+
+                @Override
+                protected void done() {
+                    if (workers.stream().allMatch(SwingWorker::isDone)) {
+                        progressDialog.dispose();
+                        handleLoadedMessages(true);
+                        if (!errors.isEmpty()) {
+                            Exception error = new Exception(String.join("\n", errors));
+                            Constants.SHOW_ERROR_DIALOG(view, error);
+                        }
+                    }
+                }
+            };
+
+            workers.add(worker);
         }
-        view.setUserNameText("Loading...");
-        SwingUtilities.invokeLater(() -> {
-            if (user == null) user = new GraphUser(token);
-            else user.setToken(token);
-            try {
-                Me me = user.getMe();
-                view.setUserNameText(me.name());
-                view.setUserMailText(me.mail());
 
-                user.getMessagesAsync(() -> handleLoadedMessages(false), () -> handleLoadedMessages(true), Constants.MAX_EMAILS_GET);
-
-            } catch (Exception e) {
-                Constants.SHOW_ERROR_DIALOG(view, e);
-                view.setUserNameText("ERROR - " + e.getMessage());
-                view.setUserMailText("");
+        // Quando clicar no 'X', cancela todas as threads
+        progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        progressDialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                String cancelMsg = "Do you really want to cancel the deletion?";
+                int confirm = JOptionPane.showConfirmDialog(progressDialog, cancelMsg, DIALOG_TITLE("Cancel Delete Messages"), JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    workers.forEach(worker -> worker.cancel(true));
+                }
             }
         });
+
+        // Inicia todas as threads
+        workers.forEach(SwingWorker::execute);
+        progressDialog.setVisible(true);
     }
 
-    private void handleLoadedMessages(boolean isFullyLoaded) {
-        view.emailTreeView().setMessages(user.messages());
-
-        String status = String.format("⌛ %s total messages. Loading more...", user.messages().size());
-        if (isFullyLoaded) {
-            status = String.format("✅ %s total messages.", user.messages().size());
-            view.menuAttMessages().setEnabled(true);
-        }
-        view.setStatusText(status);
-    }
-
-    private void deleteMessages(List<Message> messages) {
-        int response = JOptionPane.showConfirmDialog(view, "Are you sure you want to delete this message?", "Delete Messages", JOptionPane.YES_NO_OPTION);
-        if (response == JOptionPane.YES_OPTION) {
-            List<String> errors = new ArrayList<>();
-
-            messages.forEach(message -> {
-                try {
-                    user.deleteMessage(message);
-                    handleLoadedMessages(true);
-                } catch (Exception ex) {
-                    errors.add("Error deleting: \"" + message.subject() + "\": " + ex.getMessage());
-                }
-            });
-
-            if (!errors.isEmpty()) {
-                Exception error = new Exception(String.join("\n", errors));
-                Constants.SHOW_ERROR_DIALOG(view, error);
-            }
-        }
-    }
 
     private void closeApp() {
-        String title = Constants.APP_TITLE;
         String message = "Are you sure you want to exit the application?";
-        int response = JOptionPane.showConfirmDialog(view, message, title, JOptionPane.YES_NO_OPTION);
+        int response = JOptionPane.showConfirmDialog(view, message, DIALOG_TITLE("Exit App"), JOptionPane.YES_NO_OPTION);
         if (response == JOptionPane.YES_OPTION) System.exit(0);
     }
 }

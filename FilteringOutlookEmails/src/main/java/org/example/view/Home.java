@@ -6,9 +6,14 @@ import org.example.view.components.EmailTreeView;
 import javax.swing.*;
 import java.awt.*;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
+
+
 public class Home extends JFrame {
 
-    private final JLabel lblUserName = new JLabel("Insert token first...");
+    private final JLabel lblUserName = new JLabel("Click to insert token...");
     private final JLabel lblUserEmail = new JLabel("");
     private final JLabel lblStatus = new JLabel("");
 
@@ -88,6 +93,13 @@ public class Home extends JFrame {
         JScrollPane scrollPane = new JScrollPane(tree);
         scrollPane.setBounds(15, 120, Constants.APP_RESOLUTION.width - 45, 300);
         add(scrollPane);
+    }
+
+    public void onUserNameClick(Consumer<MouseEvent> handler) {
+        lblUserName.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {handler.accept(e);}
+        });
     }
 
     public JMenuItem menuChangeToken() {return menuChangeToken;}

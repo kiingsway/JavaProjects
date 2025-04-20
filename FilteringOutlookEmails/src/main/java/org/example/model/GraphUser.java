@@ -61,6 +61,7 @@ public class GraphUser {
 
             @Override
             protected void process(List<Message> chunks) {
+                chunks.removeIf(Objects::isNull);
                 messages.addAll(chunks);
                 if (onPageLoaded != null) onPageLoaded.run();
             }

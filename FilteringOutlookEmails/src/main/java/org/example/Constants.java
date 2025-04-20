@@ -6,21 +6,22 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 public class Constants {
+
+    public static final int MAX_EMAILS_GET = 100000;
 
     public static final String APP_TITLE = "Filtering Outlook Emails";
     public static final Dimension APP_RESOLUTION = new Dimension(640, 480);
 
     public static final Font FONT_TITLE = new Font("Segoe UI", Font.PLAIN, 16);
     public static final Font FONT_DEFAULT = new Font("Segoe UI Emoji", Font.PLAIN, 12);
-    public static final int MAX_EMAILS_GET = 100000;
+
+    public static String DIALOG_TITLE(String text) {return Constants.APP_TITLE + " - " + text;}
 
     public static JSONObject GET_REQUEST(String endpoint, String token) throws Exception {
         URL url = new URI(endpoint).toURL();
@@ -54,13 +55,10 @@ public class Constants {
             String msg = String.format("%s: %s", responseCode, conn.getResponseMessage());
             throw new Exception(msg);
         }
-
-        // Se houver conteúdo (raro em DELETE), pode ler aqui
         conn.disconnect();
     }
 
-
-    public static void OPEN_LINK(String url)  {
+    public static void OPEN_LINK(String url) {
         try {
             if (Desktop.isDesktopSupported()) Desktop.getDesktop().browse(new URI(url));
             else throw new UnsupportedOperationException("Desktop não suportado.");
@@ -73,6 +71,8 @@ public class Constants {
         StringSelection selection = new StringSelection(text);
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
     }
+
+    public static void PRINT(String text) {System.out.println(text);}
 
     @SuppressWarnings("CallToPrintStackTrace")
     public static void SHOW_ERROR_DIALOG(Component view, Exception e) {

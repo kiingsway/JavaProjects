@@ -3,7 +3,6 @@ package org.example.view.components;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.ParseException;
@@ -12,6 +11,7 @@ import java.util.*;
 import java.util.List;
 import javax.swing.tree.DefaultTreeModel;
 
+import org.example.Constants;
 import org.example.model.interfaces.Message;
 import org.example.model.interfaces.TreeItem;
 
@@ -28,31 +28,35 @@ public class EmailTreeView {
 
         tree.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseReleased(MouseEvent e) {
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    int row = tree.getClosestRowForLocation(e.getX(), e.getY());
-                    tree.setSelectionRow(row);
-
-                    Object selectedNode = tree.getLastSelectedPathComponent();
-                    if (selectedNode != null) {
-                        showContextMenu(e.getComponent(), e.getX(), e.getY(), selectedNode.toString());
-                    }
-                }
-            }
+            public void mouseReleased(MouseEvent e) {onTreeClick(e);}
         });
     }
 
+    private void onTreeClick(MouseEvent e) {
+        if (SwingUtilities.isRightMouseButton(e)) {
+            int row = tree.getClosestRowForLocation(e.getX(), e.getY());
+            tree.setSelectionRow(row);
+
+            Object selectedNode = tree.getLastSelectedPathComponent();
+            if (selectedNode != null) {
+                showContextMenu(e.getComponent(), e.getX(), e.getY(), selectedNode.toString());
+            }
+        }
+    }
+
     public void setMessages(List<Message> messages) {
+        messages.removeIf(Objects::isNull);
         this.messages = messages;
         updateTree();
     }
+
 
     private void updateTree() {
         rootNode.removeAllChildren();
 
         Map<String, List<Message>> groupedMessages = new HashMap<>();
         for (Message msg : messages) {
-            groupedMessages.computeIfAbsent(msg.from(), k -> new ArrayList<>()).add(msg);
+            groupedMessages.computeIfAbsent(msg.from(), _ -> new ArrayList<>()).add(msg);
         }
 
         List<Map.Entry<String, List<Message>>> sortedSenders = new ArrayList<>(groupedMessages.entrySet());
@@ -69,7 +73,7 @@ public class EmailTreeView {
                 String subjectLine = String.format("[%s] - %s", formattedDate, msg.subject());
                 DefaultMutableTreeNode subjectNode = new DefaultMutableTreeNode(new TreeItem(subjectLine, msg.id()));
 
-                subjectNode.add(new DefaultMutableTreeNode(msg.bodyPreview()));
+                subjectNode.add(new DefaultMutableTreeNode(new TreeItem(msg.bodyPreview(), msg.id())));
                 senderNode.add(subjectNode);
             }
 
@@ -78,8 +82,6 @@ public class EmailTreeView {
 
         treeModel.reload();
     }
-
-    public JTree getTree() {return tree;}
 
     private String formatDate(String isoDateTime) {
         try {
@@ -112,8 +114,9 @@ public class EmailTreeView {
     }
 
     private void copyText(String text) {
-        StringSelection selection = new StringSelection(text);
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+        Constants.COPY_TO_CLIPBOARD(text);
         JOptionPane.showMessageDialog(null, "Text copied to clipboard!");
     }
+
+    public JTree getTree() {return tree;}
 }
