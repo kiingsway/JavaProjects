@@ -1,8 +1,13 @@
 package org.example;
 
+import org.example.controller.database.DBBatchAddController;
 import org.example.controller.database.DatabaseController;
+import org.example.controller.database.DatabaseFormController;
+import org.example.controller.game.GameController;
 import org.example.model.GameSettings;
 import org.example.model.TranslateItemModel;
+import org.example.view.database.DBBatchAddView;
+import org.example.view.database.DatabaseFormView;
 import org.example.view.database.DatabaseView;
 import org.example.view.game.GameView;
 

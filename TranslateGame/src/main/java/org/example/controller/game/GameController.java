@@ -1,5 +1,6 @@
 package org.example.controller.game;
 
+import org.example.Constants;
 import org.example.model.GameSettings;
 import org.example.model.Player;
 import org.example.model.interfaces.SimpleDocumentListener;
@@ -7,9 +8,6 @@ import org.example.model.interfaces.SimpleWindowListener;
 import org.example.view.game.GameView;
 
 import javax.swing.*;
-
-import static org.example.view.ViewConstants.GO_HOME;
-import static org.example.view.ViewConstants.SHOW_ERROR_DIALOG;
 
 public class GameController {
 
@@ -54,7 +52,7 @@ public class GameController {
                 player = new Player(this);
             }
         } catch (Exception e) {
-            SHOW_ERROR_DIALOG(view, e);
+            Constants.SHOW_ERROR_DIALOG(view, e);
         }
         updateView();
     }
@@ -105,6 +103,6 @@ public class GameController {
         String title = "Close Game";
         int response = JOptionPane.showConfirmDialog(view, msg, title, JOptionPane.YES_NO_OPTION);
 
-        if (response == JOptionPane.YES_OPTION) GO_HOME(view);
+        if (response == JOptionPane.YES_OPTION) Constants.GO_HOME(view);
     }
 }
