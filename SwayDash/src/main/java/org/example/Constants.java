@@ -29,7 +29,6 @@ public class Constants {
 
   public static final Font FONT_DEFAULT = loadFont(RAJDHANI_MEDIUM_FILE, 25f);
   public static final Font FONT_EMOJI = new Font("Segoe UI Emoji", Font.BOLD, 17);
-  public static final Font FONT_EMOJI_10 = new Font("Segoe UI Emoji", Font.BOLD, 10);
 
   public static final Font FONT_WEATHER = loadFont(RAJDHANI_BOLD_FILE, 60f);
   public static final Font FONT_ACTION = new Font("Segoe UI Emoji", Font.BOLD, 30);
@@ -90,7 +89,9 @@ public class Constants {
 
     try {
       clipboard.setContents(stringSelection, null);
-    } catch (Exception e) {}
+    } catch (Exception e) {
+      SHOW_ERROR_DIALOG(null, e);
+    }
   }
 
   public static void SHOW_ERROR_DIALOG(Component view, Exception e) {
@@ -100,10 +101,6 @@ public class Constants {
 
   public static void PRINT(String text) {
     PRINTRun(text, false);
-  }
-
-  public static void PRINT(String text, boolean printTime) {
-    PRINTRun(text, printTime);
   }
 
   public static void PRINTRun(String text, boolean printTime) {

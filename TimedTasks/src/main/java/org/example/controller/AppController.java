@@ -26,7 +26,7 @@ public class AppController {
         refreshTaskPanels();
     }
 
-    public void createTask(ActionEvent ev) {
+    public void createTask(ActionEvent ignored) {
         try {
             tasksList.add(new Task());
             refreshTaskPanels();

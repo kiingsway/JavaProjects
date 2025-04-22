@@ -11,7 +11,6 @@ import org.example.view.components.weather.WeatherPanel;
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
-import java.util.List;
 
 public class HomeView extends JFrame {
 

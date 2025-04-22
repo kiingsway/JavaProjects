@@ -41,7 +41,7 @@ public class DateTimePicker extends JSpinner {
 
   public void setValue(String valueString) throws Exception {
     try {
-      // Recebe a String UTC e converte para o horário local
+      // Recebe a 'string' UTC e converte para o horário local
       Date utcDate = utcFormatter.parse(valueString);
       getModel().setValue(utcDate);
     } catch (ParseException e) {

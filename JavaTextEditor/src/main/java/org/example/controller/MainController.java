@@ -17,8 +17,6 @@ import javax.swing.undo.UndoManager;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.regex.*;
 import java.util.List;

@@ -5,7 +5,7 @@ import java.awt.event.ActionEvent;
 
 @FunctionalInterface
 public interface SimpleAction extends Action {
-  void onAction(ActionEvent e);
+  void onAction(ActionEvent ignoredE);
 
   @Override
   default void actionPerformed(ActionEvent e) {

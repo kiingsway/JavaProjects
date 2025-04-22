@@ -30,7 +30,6 @@ public class TaskFormPage extends JFrame {
     gbc.fill = GridBagConstraints.HORIZONTAL;
 
     renderTaskInfo();
-    renderTaskDates();
     renderTaskDescription();
   }
 
@@ -67,8 +66,6 @@ public class TaskFormPage extends JFrame {
     }*/
     add(panel, gbc);
   }
-
-  private void renderTaskDates() {}
 
   private void renderTaskDescription() {
     JPanel panel = new JPanel();

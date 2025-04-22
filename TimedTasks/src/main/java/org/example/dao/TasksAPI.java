@@ -1,5 +1,6 @@
 package org.example.dao;
 
+import org.example.Constants;
 import org.example.model.Task;
 
 import java.sql.*;
@@ -68,7 +69,7 @@ public class TasksAPI {
                     startDateTime = Optional.ofNullable(startTime).map(this::safeParse).orElse(null);
                     endDateTime = Optional.ofNullable(endTime).map(this::safeParse).orElse(null);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Constants.SHOW_ERROR_DIALOG(e);
                 }
 
                 Task task = new Task(id, title, ETA, startDateTime, endDateTime);
@@ -103,7 +104,7 @@ public class TasksAPI {
         try {
             return timeFormat.parse(time);
         } catch (ParseException e) {
-            e.printStackTrace();
+            Constants.SHOW_ERROR_DIALOG(e);
             return null;
         }
     }

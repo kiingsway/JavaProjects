@@ -24,12 +24,6 @@ public class TimePicker extends JSpinner {
         TimePicker_Run(initialValue);
     }
 
-    public TimePicker() {
-        super(new SpinnerDateModel());
-        debounceTimer = createDebounceTimer();
-        TimePicker_Run(null);
-    }
-
     private Timer createDebounceTimer() {
         Timer timer = new Timer(500, _ -> {
             if (onDebouncedTimeChange != null) onDebouncedTimeChange.actionPerformed(null);

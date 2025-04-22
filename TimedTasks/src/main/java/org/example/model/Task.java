@@ -1,6 +1,5 @@
 package org.example.model;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -18,13 +17,6 @@ public class Task {
         this.ETA = null;
         this.startDateTime = null;
         this.endDateTime = null;
-    }
-
-    public Task(String title, Date ETA, Date startDateTime, Date endDateTime) {
-        this.title = title;
-        this.ETA = ETA;
-        this.startDateTime = startDateTime;
-        this.endDateTime = endDateTime;
     }
 
     public Task(int id, String title, Date ETA, Date startDateTime, Date endDateTime) {

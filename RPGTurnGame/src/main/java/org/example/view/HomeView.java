@@ -53,16 +53,12 @@ public class HomeView extends JFrame {
       JLabel lblMP = new JLabel(hero.getMPText());
 
       int y = 25;
-      Constants.PRINT("Y: " + y);
       lblName.setBounds(15, y, lblName.getPreferredSize().width, lblName.getPreferredSize().height);
       y += lblName.getPreferredSize().height;
-      Constants.PRINT("Y: " + y);
       lblLevel.setBounds(15, y, lblLevel.getPreferredSize().width, lblLevel.getPreferredSize().height);
       y += lblLevel.getPreferredSize().height;
-      Constants.PRINT("Y: " + y);
       lblHP.setBounds(15, y, lblHP.getPreferredSize().width, lblHP.getPreferredSize().height);
       y += lblHP.getPreferredSize().height;
-      Constants.PRINT("Y: " + y);
       lblMP.setBounds(15, y, lblMP.getPreferredSize().width, lblMP.getPreferredSize().height);
       //y += lblMP.getPreferredSize().height;
 

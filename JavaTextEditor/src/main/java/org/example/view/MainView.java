@@ -3,7 +3,6 @@ package org.example.view;
 import org.example.view.tabPolicy.MainFocusTraversalPolicy;
 
 import javax.swing.*;
-import javax.swing.text.*;
 import java.awt.*;
 
 public class MainView extends JFrame {

@@ -42,7 +42,7 @@ public class AppLogController {
     itemPanel.add(btnClose, BorderLayout.WEST);
 
     String message = logItem.toString();
-    JLabel lblMessage = new JLabel(shortenText(message, 54));
+    JLabel lblMessage = new JLabel(shortenText(message));
     lblMessage.setToolTipText(message);
     lblMessage.setFont(Constants.FONT_BOLD_15);
     lblMessage.setVerticalAlignment(SwingConstants.CENTER);
@@ -103,7 +103,8 @@ public class AppLogController {
     JOptionPane.showMessageDialog(view, message, Constants.APP_TITLE + " - ERROR", JOptionPane.ERROR_MESSAGE);
   }
 
-  private String shortenText(String text, int maxLength) {
+  private String shortenText(String text) {
+    int maxLength = 54;
     return text.length() > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
   }
 }
