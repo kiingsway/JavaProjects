@@ -30,7 +30,7 @@ public class GProductView extends JFrame {
     private static final JLabel lblCostBenefit = new JLabel();
     private static final JLabel lblProductId = new JLabel();
 
-    private static final JButton btnLoadMoreInfo = new JButton("Load more...");
+    private final JMenuItem menuLoadMoreInfo = new JMenuItem("Load more info");
 
     private static final List<JLabel> labels = List.of(lblDescription, lblBrand, lblTotalSize, lblCultivator, lblEffect, lblTHCUnit, lblCBDUnit, lblTHC, lblCBD, lblCostBenefit, lblProductId);
 
@@ -43,7 +43,22 @@ public class GProductView extends JFrame {
         setResizable(false);
         setLayout(null);
 
+        renderMenu();
         renderInfo();
+    }
+
+    private void renderMenu() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+
+        JMenuItem closeItem = new JMenuItem("Close");
+        closeItem.addActionListener(_ -> dispose());
+
+        fileMenu.add(menuLoadMoreInfo);
+        fileMenu.add(closeItem);
+        menuBar.add(fileMenu);
+
+        setJMenuBar(menuBar);
     }
 
     private void renderInfo() {
@@ -56,14 +71,11 @@ public class GProductView extends JFrame {
 
         lblTitle.setBounds(15, 15, (Constants.APP_WIDTH - 50), 35);
         lblPrice.setBounds(30, 45, 200, 20);
-        btnLoadMoreInfo.setBounds(30, 75, 120, 20);
 
         add(lblTitle);
         add(lblPrice);
-        add(btnLoadMoreInfo);
 
         Font plain = new Font("Segoe UI", Font.PLAIN, 14);
-
         for (JLabel label : labels) label.setFont(plain);
 
         fillProductInfo();
@@ -101,9 +113,9 @@ public class GProductView extends JFrame {
     private void shapeProductInfo() {
         int y = 100;
         for (JLabel label : labels) {
-            int width = Math.max(label.getPreferredSize().width, Constants.APP_WIDTH - 100);
+            int width = Math.min(label.getPreferredSize().width, 350);
             int height = Math.max(20, label.getPreferredSize().height);
-            label.setBounds(30, y, width, height);
+            label.setBounds(400, y, width, height);
             label.setToolTipText(label.getText());
             add(label);
             y += label.getPreferredSize().height;
@@ -114,5 +126,5 @@ public class GProductView extends JFrame {
 
     public JLabel lblTitle() {return lblTitle;}
 
-    public JButton btnLoadMoreInfo() {return btnLoadMoreInfo;}
+    public JMenuItem menuLoadMoreInfo() {return menuLoadMoreInfo;}
 }

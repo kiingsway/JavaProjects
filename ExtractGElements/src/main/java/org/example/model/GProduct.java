@@ -9,10 +9,10 @@ import java.util.regex.Pattern;
 
 public class GProduct {
 
-    private String productId;
+    private final String productId;
     private String title;
     private String type;
-    private BigDecimal price;
+    private final BigDecimal price;
     private String brand;
     private String url;
     private String description;
@@ -58,15 +58,11 @@ public class GProduct {
 
     public BigDecimal price() {return price;}
 
-    public void price(BigDecimal price) {this.price = price;}
-
     public String brand() {return brand;}
 
     public void brand(String brand) {this.brand = brand;}
 
     public String productId() {return productId;}
-
-    public void productId(String productId) {this.productId = productId;}
 
     public String url() {return url;}
 

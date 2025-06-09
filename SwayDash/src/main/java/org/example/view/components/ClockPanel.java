@@ -16,7 +16,6 @@ public class ClockPanel extends JPanel implements ThemedPanel {
 
   private static final SimpleDateFormat CLOCK_FORMAT = new SimpleDateFormat("HH:mm:ss");
   private static final SimpleDateFormat WEEK_FORMAT_FR = new SimpleDateFormat("EEEE", Locale.CANADA_FRENCH);
-  private static final SimpleDateFormat WEEK_FORMAT_BR = new SimpleDateFormat("EEE", Locale.forLanguageTag("pt-BR"));
   private static final SimpleDateFormat DATE_FORMAT_FR = new SimpleDateFormat("dd MMMM yyyy", Locale.CANADA_FRENCH);
 
   private static final JLabel lblClock = new JLabel();
@@ -49,13 +48,11 @@ public class ClockPanel extends JPanel implements ThemedPanel {
       Date now = new Date(System.currentTimeMillis());
 
       String weekFR = WEEK_FORMAT_FR.format(now);
-      String weekBR = WEEK_FORMAT_BR.format(now).replaceAll("\\.", "");
       String fullDate = DATE_FORMAT_FR.format(now);
 
       lblClock.setText(CLOCK_FORMAT.format(now));
 
-      String date = String.format("%s (%s), %s", weekFR, weekBR, fullDate);
-      if (weekBR.equals("dom") || weekBR.equals("sab")) date = String.format("%s, %s", weekFR, fullDate);
+      String date = String.format("%s, %s", weekFR, fullDate);
 
       lblDate.setText(date);
     } catch (Exception e) {

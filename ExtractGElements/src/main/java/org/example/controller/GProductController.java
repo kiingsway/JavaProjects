@@ -4,14 +4,10 @@ import org.example.Constants;
 import org.example.model.Extractors;
 import org.example.view.GProductView;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
 
 public class GProductController {
 
@@ -25,11 +21,9 @@ public class GProductController {
 
     private void setListeners() {
         // Button Load More Info
-        for (ActionListener al : view.btnLoadMoreInfo().getActionListeners()) {
-            view.btnLoadMoreInfo().removeActionListener(al);
-        }
-
-        view.btnLoadMoreInfo().addActionListener(_ -> {
+        Constants.REMOVE_ALL_LISTENERS(view.menuLoadMoreInfo());
+        view.menuLoadMoreInfo().addActionListener(_ -> {
+            System.out.println("Loading more info...");
             WebDriver driver = Constants.GET_NEW_WEBDRIVER();
             Extractors.getProductInfo(view.product(), driver);
             driver.quit();
@@ -37,9 +31,7 @@ public class GProductController {
         });
 
         // Label Title
-        for (MouseListener ml : view.lblTitle().getMouseListeners()) {
-            if (ml instanceof MouseAdapter) view.lblTitle().removeMouseListener(ml);
-        }
+        Constants.REMOVE_ALL_LISTENERS(view.lblTitle());
 
         view.lblTitle().setForeground(Color.BLACK); // cor padrão
         view.lblTitle().setCursor(new Cursor(Cursor.HAND_CURSOR)); // opcional: cursor de link
@@ -62,6 +54,5 @@ public class GProductController {
                 view.lblTitle().setForeground(Color.BLACK);
             }
         });
-
     }
 }

@@ -9,8 +9,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -23,23 +21,36 @@ import java.util.stream.Collectors;
 
 public class ProductListPanel extends JPanel {
 
-    private final JPanel productContainer;
     private final List<GProduct> productList = new ArrayList<>();
-    private final JTextField searchField = new JTextField(20);
     private int currentRow = 0;
+
+    private final JTextField searchField = new JTextField(20);
+    private final JLabel lblStatus = new JLabel(" ");
+    private final JPanel productContainer = new JPanel();
 
     public ProductListPanel() {
         setLayout(new BorderLayout());
 
-        // Campo de busca no topo
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        searchPanel.add(new JLabel("Search:"));
-        searchPanel.add(searchField);
-        add(searchPanel, BorderLayout.NORTH);
+        // Painel superior com barra de ferramentas
+        JPanel toolbarPanel = new JPanel(new BorderLayout());
 
-        productContainer = new JPanel();
+        // Painel da esquerda (campo de busca)
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        leftPanel.add(new JLabel("Search:"));
+        leftPanel.add(searchField);
+
+        // Painel da direita (status)
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rightPanel.add(lblStatus);
+
+        // Adiciona os dois lados ao toolbarPanel
+        toolbarPanel.add(leftPanel, BorderLayout.WEST);
+        toolbarPanel.add(rightPanel, BorderLayout.EAST);
+
+        add(toolbarPanel, BorderLayout.NORTH);
+
+        // Container de produtos
         productContainer.setLayout(new BoxLayout(productContainer, BoxLayout.Y_AXIS));
-
         productContainer.setBackground(Color.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(productContainer);
@@ -47,19 +58,13 @@ public class ProductListPanel extends JPanel {
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(scrollPane, BorderLayout.CENTER);
 
-        // Escuta mudanças no campo de texto
+        // Listener de busca
         searchField.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) {
-                filterProducts();
-            }
+            public void insertUpdate(DocumentEvent e) {filterProducts();}
 
-            public void removeUpdate(DocumentEvent e) {
-                filterProducts();
-            }
+            public void removeUpdate(DocumentEvent e) {filterProducts();}
 
-            public void changedUpdate(DocumentEvent e) {
-                filterProducts();
-            }
+            public void changedUpdate(DocumentEvent e) {filterProducts();}
         });
     }
 
@@ -70,54 +75,62 @@ public class ProductListPanel extends JPanel {
     }
 
     public void addProducts(List<GProduct> products) {
-        Map<String, GProduct> currentProductsById = productList.stream()
-                .collect(Collectors.toMap(GProduct::productId, p -> p, (p1, _) -> p1));
+        Map<String, GProduct> newProductsById = products.stream()
+                .collect(Collectors.toMap(GProduct::productId, p -> p));
 
-        for (GProduct newProduct : products) {
-            currentProductsById.put(newProduct.productId(), newProduct); // Substitui se já existir
+        // Atualiza os produtos existentes na mesma posição
+        for (int i = 0; i < productList.size(); i++) {
+            GProduct existing = productList.get(i);
+            String id = existing.productId();
+            if (newProductsById.containsKey(id)) {
+                productList.set(i, newProductsById.get(id)); // Substitui na mesma posição
+                newProductsById.remove(id); // Remove já tratado
+            }
         }
 
-        productList.clear();
-        productList.addAll(currentProductsById.values());
+        // Adiciona os novos ao final
+        productList.addAll(newProductsById.values());
+
         displayProducts(productList);
     }
 
-    public List<GProduct> getProducts() {
-        return productList;
-    }
-
     public <T extends Comparable<? super T>> void sortProducts(Function<GProduct, T> keyExtractor, boolean ascending) {
+
         Comparator<GProduct> comparator = Comparator.comparing(keyExtractor);
         if (!ascending) comparator = comparator.reversed();
-
         List<GProduct> sorted = productList.stream().sorted(comparator).collect(Collectors.toList());
-
         displayProducts(sorted);
+
     }
 
     /**
      * Atualiza um único produto na lista e na UI, se ele existir.
      */
     public void updateSingleProduct(GProduct updatedProduct) {
+        // Atualiza o produto na lista de dados
         for (int i = 0; i < productList.size(); i++) {
-            GProduct current = productList.get(i);
-            if (current.productId().equals(updatedProduct.productId())) {
-                // Atualiza na lista de dados
+            if (productList.get(i).productId().equals(updatedProduct.productId())) {
                 productList.set(i, updatedProduct);
-
-                // Atualiza na UI
-                Component[] components = productContainer.getComponents();
-                if (i < components.length) {
-                    Component comp = components[i];
-                    if (comp instanceof JPanel) {
-                        productContainer.remove(i);
-                        productContainer.add(createProductPanel(updatedProduct), i);
-                        productContainer.revalidate();
-                        productContainer.repaint();
-
-                    }
-                }
                 break;
+            }
+        }
+
+        // Atualiza o componente correspondente na UI
+        Component[] components = productContainer.getComponents();
+        for (int i = 0; i < components.length; i++) {
+            Component comp = components[i];
+            if (comp instanceof JPanel panel) {
+                Object id = panel.getClientProperty("productId");
+                if (id != null && id.equals(updatedProduct.productId())) {
+                    // Substitui o painel antigo pelo novo
+                    productContainer.remove(i);
+                    JPanel newPanel = createProductPanel(updatedProduct);
+                    newPanel.putClientProperty("productId", updatedProduct.productId());
+                    productContainer.add(newPanel, i);
+                    productContainer.revalidate();
+                    productContainer.repaint();
+                    break;
+                }
             }
         }
     }
@@ -158,6 +171,9 @@ public class ProductListPanel extends JPanel {
 
     private JPanel createProductPanel(GProduct product) {
         JPanel panel = new JPanel(new GridBagLayout());
+        panel.putClientProperty("productId", product.productId());
+        panel.putClientProperty("product", product); // <-- Aqui está o novo uso
+
         panel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
         panel.setBackground(Color.WHITE);
 
@@ -169,7 +185,7 @@ public class ProductListPanel extends JPanel {
         gbc.gridx = 0;
         gbc.weightx = 2;
         JLabel lblTitle = new JLabel(product.title());
-        lblTitle.setPreferredSize(new Dimension(Constants.APP_WIDTH - 345, 20)); // largura fixa
+        lblTitle.setPreferredSize(new Dimension(Constants.APP_WIDTH - 345, 20));
         panel.add(lblTitle, gbc);
 
         // THC
@@ -181,74 +197,62 @@ public class ProductListPanel extends JPanel {
 
         // Total Size
         gbc.gridx++;
-        gbc.weightx = 1;
-        JLabel lblTotalSize = new JLabel(String.format("<html><body><small>%sg</small></body></html>", product.totalSize().stripTrailingZeros().toPlainString()));
+        JLabel lblTotalSize = new JLabel(String.format("<html><body><small>%sg</small></body></html>",
+                product.totalSize().stripTrailingZeros().toPlainString()));
         lblTotalSize.setPreferredSize(new Dimension(35, 20));
         panel.add(lblTotalSize, gbc);
 
         // THC Cost Benefit
         gbc.gridx++;
-        gbc.weightx = 1;
-        JLabel lblTHCCB = new JLabel(String.format("<html><body><small>$ %.2f/g/THC%%</small></body></html>", product.thcCostBenefit()));
+        JLabel lblTHCCB = new JLabel(String.format("<html><body><small>$ %.2f/g/THC%%</small></body></html>",
+                product.thcCostBenefit()));
         lblTHCCB.setPreferredSize(new Dimension(75, 20));
         panel.add(lblTHCCB, gbc);
 
         // Cost Benefit
         gbc.gridx++;
-        gbc.weightx = 1;
-        JLabel lblCostBenefit = new JLabel(String.format("<html><body><small>$ %.2f/g</small></body></html>", product.costBenefit()));
+        JLabel lblCostBenefit = new JLabel(String.format("<html><body><small>$ %.2f/g</small></body></html>",
+                product.costBenefit()));
         lblCostBenefit.setPreferredSize(new Dimension(50, 20));
         panel.add(lblCostBenefit, gbc);
 
         // Price
         gbc.gridx++;
-        gbc.weightx = 1;
         JLabel lblPrice = new JLabel(String.format("$ %.2f", product.price()));
         lblPrice.setPreferredSize(new Dimension(50, 20));
         panel.add(lblPrice, gbc);
 
-        // Mouse interactions
+        // Mouse interactions (refatorado)
         panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                GProductView view = new GProductView(product);
+                GProduct clickedProduct = (GProduct) ((JPanel) e.getSource()).getClientProperty("product");
+                GProductView view = new GProductView(clickedProduct);
                 new GProductController(view);
                 view.setVisible(true);
             }
 
             @Override
-            public void mouseEntered(MouseEvent e) {panel.setBackground(Color.LIGHT_GRAY);}
+            public void mouseEntered(MouseEvent e) {
+                ((JPanel) e.getSource()).setBackground(Color.LIGHT_GRAY);
+            }
 
             @Override
-            public void mousePressed(MouseEvent e) {panel.setBackground(Color.GRAY);}
+            public void mousePressed(MouseEvent e) {
+                ((JPanel) e.getSource()).setBackground(Color.GRAY);
+            }
 
             @Override
-            public void mouseExited(MouseEvent e) {panel.setBackground(Color.WHITE);}
+            public void mouseExited(MouseEvent e) {
+                ((JPanel) e.getSource()).setBackground(Color.WHITE);
+            }
         });
 
         return panel;
     }
 
-    public void updateExistingProducts(List<GProduct> updatedProducts) {
-        Map<String, GProduct> updatedMap = updatedProducts.stream()
-                .collect(Collectors.toMap(GProduct::productId, Function.identity(), (p1, p2) -> p2));
+    public List<GProduct> getProducts() {return productList;}
 
-        boolean anyUpdated = false;
-
-        for (int i = 0; i < productList.size(); i++) {
-            GProduct current = productList.get(i);
-            GProduct updated = updatedMap.get(current.productId());
-
-            if (updated != null && !updated.equals(current)) {
-                productList.set(i, updated);
-                anyUpdated = true;
-            }
-        }
-
-        if (anyUpdated) {
-            displayProducts(productList); // Atualiza UI apenas se algo mudou
-        }
-    }
-
+    public void setStatus(String status) {lblStatus.setText(status == null || status.isEmpty() ? " " : status);}
 }

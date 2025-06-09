@@ -7,6 +7,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Clipboard;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 import java.math.BigDecimal;
 import java.net.URI;
 
@@ -17,6 +19,21 @@ public class Constants {
     public static final String APP_TITLE = "Extract G Elements";
     public static final int APP_WIDTH = 800;
     public static final int APP_HEIGHT = 600;
+
+    public static void REMOVE_ALL_LISTENERS(JComponent component) {
+        // Remover ActionListeners
+        if (component instanceof AbstractButton) {
+            for (ActionListener al : ((AbstractButton) component).getActionListeners()) {
+                ((AbstractButton) component).removeActionListener(al);
+            }
+        }
+
+        // Remover MouseListeners
+        for (MouseListener ml : component.getMouseListeners()) {
+            component.removeMouseListener(ml);
+        }
+    }
+
 
     public static WebDriver GET_NEW_WEBDRIVER() {
         ChromeOptions options = new ChromeOptions();
@@ -50,7 +67,6 @@ public class Constants {
         try {
             Desktop.getDesktop().browse(new URI(url));
         } catch (Exception ex) {
-            ex.printStackTrace();
             Constants.SHOW_ERROR_DIALOG(ex);
         }
     }
@@ -63,6 +79,7 @@ public class Constants {
     }
 
     public static void SHOW_ERROR_DIALOG(Exception e) {
+        e.printStackTrace();
         System.out.println(e.getMessage());
         String errorType = e.getClass().getSimpleName();
         String title = "ERROR - " + errorType;
